@@ -222,7 +222,7 @@ class MotorController:
                     self.servo.up()
                     self.motion_status = MotionStateE.CHASE_BALL
                 # TODO: ステーション到着後の動き
-                if 300 < shmem.stationDis < 380:
+                if 300 < shmem.stationDis < 390:
                     INFO('reached station')
                     self.left_motor.drive(0)
                     self.right_motor.drive(0)

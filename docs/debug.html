@@ -1,0 +1,257 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>debug module &mdash; collect_ball 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> collect_ball
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">debug module</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">collect_ball</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>debug module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/debug.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-debug">
+<span id="debug-module"></span><h1>debug module<a class="headerlink" href="#module-debug" title="Permalink to this headline">¶</a></h1>
+<p>How to use</p>
+<ol class="arabic simple">
+<li><p>debug printを使用したいファイルで以下のようにimportする。</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">debug</span> <span class="kn">import</span> <span class="n">ERROR</span><span class="p">,</span> <span class="n">WARN</span><span class="p">,</span> <span class="n">INFO</span><span class="p">,</span> <span class="n">DEBUG</span><span class="p">,</span> <span class="n">TRACE</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>DEBUG_LEVELに、ログ出力のレベルを指定する。</p></li>
+</ol>
+<div class="line-block">
+<div class="line">指定したレベル以上のログが出力される。</div>
+<div class="line">例： <code class="docutils literal notranslate"><span class="pre">DEBUG_LEVEL_INFO</span></code> を指定すると、ERROR,WARN,INFOが出力される。</div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>使用したいlevelのdebug printを通常のprint文のように記述する。</p></li>
+</ol>
+<div class="line-block">
+<div class="line">複数引数にも対応している。</div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>debug levelの目安</p></li>
+</ol>
+<div class="line-block">
+<div class="line">ERROR : プレー続行不可能になるようなエラー</div>
+<div class="line">WARN  : プレー続行不可能とはならないような警告</div>
+<div class="line">INFO  : 他スレッドとの結合動作において表示したい情報</div>
+<div class="line">DEBUG : 自スレッドのみの単体デバッグにおいて表示したい情報</div>
+<div class="line">TRACE : 処理の開始終了や分岐の出入りなど、ルートを確認するための情報</div>
+</div>
+<dl class="function">
+<dt id="debug.DEBUG">
+<code class="sig-prename descclassname">debug.</code><code class="sig-name descname">DEBUG</code><span class="sig-paren">(</span><em class="sig-param">*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/debug.html#DEBUG"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#debug.DEBUG" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="debug.ERROR">
+<code class="sig-prename descclassname">debug.</code><code class="sig-name descname">ERROR</code><span class="sig-paren">(</span><em class="sig-param">*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/debug.html#ERROR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#debug.ERROR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="debug.INFO">
+<code class="sig-prename descclassname">debug.</code><code class="sig-name descname">INFO</code><span class="sig-paren">(</span><em class="sig-param">*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/debug.html#INFO"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#debug.INFO" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="debug.TRACE">
+<code class="sig-prename descclassname">debug.</code><code class="sig-name descname">TRACE</code><span class="sig-paren">(</span><em class="sig-param">*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/debug.html#TRACE"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#debug.TRACE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="debug.WARN">
+<code class="sig-prename descclassname">debug.</code><code class="sig-name descname">WARN</code><span class="sig-paren">(</span><em class="sig-param">*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/debug.html#WARN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#debug.WARN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="debug.debugPrint">
+<code class="sig-prename descclassname">debug.</code><code class="sig-name descname">debugPrint</code><span class="sig-paren">(</span><em class="sig-param">level</em>, <em class="sig-param">*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/debug.html#debugPrint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#debug.debugPrint" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="debug.dummyFunc">
+<code class="sig-prename descclassname">debug.</code><code class="sig-name descname">dummyFunc</code><span class="sig-paren">(</span><em class="sig-param">level</em>, <em class="sig-param">*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/debug.html#dummyFunc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#debug.dummyFunc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Koya Aoki
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,24 @@
+
+@startuml system_activity
+start
+repeat
+  if (has ball?) then (yes)
+    :find the ball station by image processing and distance sensor;
+    if (ball station exist near?) then (yes)
+      :raise the ball catch box;
+      :go back in a limited time;
+      :turn by 180 degrees;
+    else (no)
+      :approach the ball station;
+    endif
+  else (no)
+    :find a ball by image processing and distance sensor;
+    if (ball exist near?) then (yes)
+      :lower the ball catch box;
+    else (no)
+      :approach a ball;
+    endif
+  endif
+repeat while
+end
+@enduml

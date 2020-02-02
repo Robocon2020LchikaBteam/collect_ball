@@ -1,0 +1,252 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>main &mdash; collect_ball 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> collect_ball
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">collect_ball</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>main</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for main</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: UTF-8</span>
+
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="k">import</span> <span class="n">Process</span><span class="p">,</span> <span class="n">Value</span>
+<span class="kn">from</span> <span class="nn">ctypes</span> <span class="k">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_bool</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">motorContl</span> <span class="k">import</span> <span class="n">MotorController</span>
+<span class="kn">from</span> <span class="nn">imageProcessing</span> <span class="k">import</span> <span class="n">ImageProcessing</span>
+<span class="kn">from</span> <span class="nn">imu</span> <span class="k">import</span> <span class="n">Imu</span>
+<span class="c1"># from socketServer import Server</span>
+<span class="kn">from</span> <span class="nn">debug</span> <span class="k">import</span> <span class="n">ERROR</span><span class="p">,</span> <span class="n">WARN</span><span class="p">,</span> <span class="n">INFO</span><span class="p">,</span> <span class="n">DEBUG</span><span class="p">,</span> <span class="n">TRACE</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">main module</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="c1"># 共有メモリの構造体</span>
+<div class="viewcode-block" id="Point"><a class="viewcode-back" href="../main.html#main.Point">[docs]</a><span class="k">class</span> <span class="nc">Point</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+    <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;ballAngle&#39;</span><span class="p">,</span> <span class="n">c_int</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;ballDis&#39;</span><span class="p">,</span> <span class="n">c_int</span><span class="p">),</span>
+                <span class="p">(</span><span class="s1">&#39;stationAngle&#39;</span><span class="p">,</span> <span class="n">c_int</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;stationDis&#39;</span><span class="p">,</span> <span class="n">c_int</span><span class="p">),</span>
+                <span class="p">(</span><span class="s1">&#39;bodyAngle&#39;</span><span class="p">,</span> <span class="n">c_int</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;preparingRestart&#39;</span><span class="p">,</span> <span class="n">c_bool</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;relyStation&#39;</span><span class="p">,</span> <span class="n">c_bool</span><span class="p">)]</span></div>
+
+
+<div class="viewcode-block" id="info"><a class="viewcode-back" href="../main.html#main.info">[docs]</a><span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="n">title</span><span class="p">):</span>
+    <span class="n">INFO</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">INFO</span><span class="p">(</span><span class="s1">&#39;module name:&#39;</span><span class="p">,</span> <span class="vm">__name__</span><span class="p">)</span>
+    <span class="n">INFO</span><span class="p">(</span><span class="s1">&#39;parent process:&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getppid</span><span class="p">())</span>
+    <span class="n">INFO</span><span class="p">(</span><span class="s1">&#39;process id:&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">())</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">info</span><span class="p">(</span><span class="s1">&#39;main line&#39;</span><span class="p">)</span>
+    <span class="c1"># 共有メモリの準備</span>
+    <span class="n">shmem</span> <span class="o">=</span> <span class="n">Value</span><span class="p">(</span><span class="n">Point</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">shmem</span><span class="o">.</span><span class="n">preparingRestart</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">shmem</span><span class="o">.</span><span class="n">relyStation</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="c1"># モータ制御インスタンスの生成</span>
+    <span class="n">motorController</span> <span class="o">=</span> <span class="n">MotorController</span><span class="p">()</span>
+    <span class="c1"># 画像処理インスタンスの生成</span>
+    <span class="n">imageProcessing</span> <span class="o">=</span> <span class="n">ImageProcessing</span><span class="p">()</span>
+    <span class="c1"># 慣性計測インスタンスの生成</span>
+    <span class="n">imu</span> <span class="o">=</span> <span class="n">Imu</span><span class="p">()</span>
+    <span class="c1"># スタート時に一度ジャイロセンサの補正をしておく</span>
+    <span class="n">imu</span><span class="o">.</span><span class="n">calibrate</span><span class="p">()</span>
+    <span class="c1"># websocketサーバの生成</span>
+    <span class="c1"># server = Server(9001)</span>
+
+    <span class="n">p_motorContl</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">motorController</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">shmem</span><span class="p">,))</span>
+    <span class="n">p_imageProcessing</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">imageProcessing</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">shmem</span><span class="p">,))</span>
+    <span class="n">p_imu</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">imu</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">shmem</span><span class="p">,))</span>
+    <span class="c1"># p_server = Process(target=server.target, args=())</span>
+    
+    <span class="n">p_motorContl</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="n">DEBUG</span><span class="p">(</span><span class="s1">&#39;p_motorContl started&#39;</span><span class="p">)</span>
+    <span class="n">p_imageProcessing</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="n">DEBUG</span><span class="p">(</span><span class="s1">&#39;p_imageProcessing started&#39;</span><span class="p">)</span>
+    <span class="n">p_imu</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="n">DEBUG</span><span class="p">(</span><span class="s1">&#39;p_imu started&#39;</span><span class="p">)</span>
+    <span class="c1"># p_server.start()</span>
+    <span class="c1"># DEBUG(&#39;p_server started&#39;)</span>
+
+    <span class="n">p_motorContl</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+    <span class="n">p_imageProcessing</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+    <span class="n">p_imu</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+    <span class="c1"># p_server.join()</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Koya Aoki
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

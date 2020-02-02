@@ -1,0 +1,308 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>imageProcessing module &mdash; collect_ball 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> collect_ball
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">imageProcessing module</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">collect_ball</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>imageProcessing module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/imageProcessing.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-imageProcessing">
+<span id="imageprocessing-module"></span><h1>imageProcessing module<a class="headerlink" href="#module-imageProcessing" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="imageProcessing.ImageProcessing">
+<em class="property">class </em><code class="sig-prename descclassname">imageProcessing.</code><code class="sig-name descname">ImageProcessing</code><a class="reference internal" href="_modules/imageProcessing.html#ImageProcessing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imageProcessing.ImageProcessing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="attribute">
+<dt id="imageProcessing.ImageProcessing.BLUE_HSV_RANGE_MAX">
+<code class="sig-name descname">BLUE_HSV_RANGE_MAX</code><em class="property"> = [120, 150, 80]</em><a class="headerlink" href="#imageProcessing.ImageProcessing.BLUE_HSV_RANGE_MAX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="imageProcessing.ImageProcessing.BLUE_HSV_RANGE_MIN">
+<code class="sig-name descname">BLUE_HSV_RANGE_MIN</code><em class="property"> = [55, 70, 10]</em><a class="headerlink" href="#imageProcessing.ImageProcessing.BLUE_HSV_RANGE_MIN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="imageProcessing.ImageProcessing.CAMERA_CENTER_CX">
+<code class="sig-name descname">CAMERA_CENTER_CX</code><em class="property"> = 240</em><a class="headerlink" href="#imageProcessing.ImageProcessing.CAMERA_CENTER_CX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="imageProcessing.ImageProcessing.CAMERA_CENTER_CY">
+<code class="sig-name descname">CAMERA_CENTER_CY</code><em class="property"> = 240</em><a class="headerlink" href="#imageProcessing.ImageProcessing.CAMERA_CENTER_CY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="imageProcessing.ImageProcessing.DEBUG_IMSHOW">
+<code class="sig-name descname">DEBUG_IMSHOW</code><em class="property"> = 0</em><a class="headerlink" href="#imageProcessing.ImageProcessing.DEBUG_IMSHOW" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="imageProcessing.ImageProcessing.DISABLE">
+<code class="sig-name descname">DISABLE</code><em class="property"> = 0</em><a class="headerlink" href="#imageProcessing.ImageProcessing.DISABLE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="imageProcessing.ImageProcessing.ENABLE">
+<code class="sig-name descname">ENABLE</code><em class="property"> = 1</em><a class="headerlink" href="#imageProcessing.ImageProcessing.ENABLE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="imageProcessing.ImageProcessing.IGNORE_AREA_SIZE_BALL">
+<code class="sig-name descname">IGNORE_AREA_SIZE_BALL</code><em class="property"> = 1000</em><a class="headerlink" href="#imageProcessing.ImageProcessing.IGNORE_AREA_SIZE_BALL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="imageProcessing.ImageProcessing.IGNORE_AREA_SIZE_YELLOW">
+<code class="sig-name descname">IGNORE_AREA_SIZE_YELLOW</code><em class="property"> = 1000</em><a class="headerlink" href="#imageProcessing.ImageProcessing.IGNORE_AREA_SIZE_YELLOW" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="imageProcessing.ImageProcessing.RED_HSV_RANGE_MAX_1">
+<code class="sig-name descname">RED_HSV_RANGE_MAX_1</code><em class="property"> = [2, 255, 255]</em><a class="headerlink" href="#imageProcessing.ImageProcessing.RED_HSV_RANGE_MAX_1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="imageProcessing.ImageProcessing.RED_HSV_RANGE_MAX_2">
+<code class="sig-name descname">RED_HSV_RANGE_MAX_2</code><em class="property"> = [179, 255, 255]</em><a class="headerlink" href="#imageProcessing.ImageProcessing.RED_HSV_RANGE_MAX_2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="imageProcessing.ImageProcessing.RED_HSV_RANGE_MIN_1">
+<code class="sig-name descname">RED_HSV_RANGE_MIN_1</code><em class="property"> = [0, 130, 30]</em><a class="headerlink" href="#imageProcessing.ImageProcessing.RED_HSV_RANGE_MIN_1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="imageProcessing.ImageProcessing.RED_HSV_RANGE_MIN_2">
+<code class="sig-name descname">RED_HSV_RANGE_MIN_2</code><em class="property"> = [160, 130, 30]</em><a class="headerlink" href="#imageProcessing.ImageProcessing.RED_HSV_RANGE_MIN_2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="imageProcessing.ImageProcessing.YELLOW_HSV_RANGE_MAX">
+<code class="sig-name descname">YELLOW_HSV_RANGE_MAX</code><em class="property"> = [30, 255, 255]</em><a class="headerlink" href="#imageProcessing.ImageProcessing.YELLOW_HSV_RANGE_MAX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="imageProcessing.ImageProcessing.YELLOW_HSV_RANGE_MIN">
+<code class="sig-name descname">YELLOW_HSV_RANGE_MIN</code><em class="property"> = [15, 127, 30]</em><a class="headerlink" href="#imageProcessing.ImageProcessing.YELLOW_HSV_RANGE_MIN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="imageProcessing.ImageProcessing.calcBallDirection">
+<code class="sig-name descname">calcBallDirection</code><span class="sig-paren">(</span><em class="sig-param">cx</em>, <em class="sig-param">cy</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/imageProcessing.html#ImageProcessing.calcBallDirection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imageProcessing.ImageProcessing.calcBallDirection" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="imageProcessing.ImageProcessing.close">
+<code class="sig-name descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/imageProcessing.html#ImageProcessing.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imageProcessing.ImageProcessing.close" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="imageProcessing.ImageProcessing.colorDetect2">
+<code class="sig-name descname">colorDetect2</code><span class="sig-paren">(</span><em class="sig-param">hsv_img</em>, <em class="sig-param">color_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/imageProcessing.html#ImageProcessing.colorDetect2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imageProcessing.ImageProcessing.colorDetect2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="imageProcessing.ImageProcessing.draw_marker">
+<code class="sig-name descname">draw_marker</code><span class="sig-paren">(</span><em class="sig-param">img</em>, <em class="sig-param">x</em>, <em class="sig-param">y</em>, <em class="sig-param">marker_color</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/imageProcessing.html#ImageProcessing.draw_marker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imageProcessing.ImageProcessing.draw_marker" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="imageProcessing.ImageProcessing.imageProcessingFrame">
+<code class="sig-name descname">imageProcessingFrame</code><span class="sig-paren">(</span><em class="sig-param">frame</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/imageProcessing.html#ImageProcessing.imageProcessingFrame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imageProcessing.ImageProcessing.imageProcessingFrame" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="imageProcessing.ImageProcessing.imageProcessingMain">
+<code class="sig-name descname">imageProcessingMain</code><span class="sig-paren">(</span><em class="sig-param">shmem</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/imageProcessing.html#ImageProcessing.imageProcessingMain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imageProcessing.ImageProcessing.imageProcessingMain" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="imageProcessing.ImageProcessing.target">
+<code class="sig-name descname">target</code><span class="sig-paren">(</span><em class="sig-param">shmem</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/imageProcessing.html#ImageProcessing.target"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imageProcessing.ImageProcessing.target" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Koya Aoki
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

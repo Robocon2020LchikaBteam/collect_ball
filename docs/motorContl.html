@@ -1,0 +1,415 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>motorContl module &mdash; collect_ball 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> collect_ball
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">motorContl module</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">collect_ball</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>motorContl module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/motorContl.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-motorContl">
+<span id="motorcontl-module"></span><h1>motorContl module<a class="headerlink" href="#module-motorContl" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="motorContl.ChaseMode">
+<em class="property">class </em><code class="sig-prename descclassname">motorContl.</code><code class="sig-name descname">ChaseMode</code><span class="sig-paren">(</span><em class="sig-param">max_normal_time_sec=3</em>, <em class="sig-param">max_swing_time_sec=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/motorContl.html#ChaseMode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#motorContl.ChaseMode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Manage chase methods</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">chaseMode</span> <span class="o">=</span> <span class="n">ChaseMode</span><span class="p">(</span><span class="n">initial_mode</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">now_chase_mode</span> <span class="o">=</span> <span class="n">cheseMode</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">now_chase_mode</span> <span class="ow">is</span> <span class="n">HOGE</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">hoge</span> <span class="o">=</span> <span class="n">fuga</span>
+</pre></div>
+</div>
+<dl class="attribute">
+<dt id="motorContl.ChaseMode.NORMAL">
+<code class="sig-name descname">NORMAL</code><em class="property"> = 0</em><a class="headerlink" href="#motorContl.ChaseMode.NORMAL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="motorContl.ChaseMode.SWING">
+<code class="sig-name descname">SWING</code><em class="property"> = 1</em><a class="headerlink" href="#motorContl.ChaseMode.SWING" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="motorContl.ChaseMode.now">
+<code class="sig-name descname">now</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/motorContl.html#ChaseMode.now"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#motorContl.ChaseMode.now" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="motorContl.ChaseMode.set_mode">
+<code class="sig-name descname">set_mode</code><span class="sig-paren">(</span><em class="sig-param">mode</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/motorContl.html#ChaseMode.set_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#motorContl.ChaseMode.set_mode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="motorContl.MotionStateE">
+<em class="property">class </em><code class="sig-prename descclassname">motorContl.</code><code class="sig-name descname">MotionStateE</code><a class="reference internal" href="_modules/motorContl.html#MotionStateE"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#motorContl.MotionStateE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="attribute">
+<dt id="motorContl.MotionStateE.CHASE_BALL">
+<code class="sig-name descname">CHASE_BALL</code><em class="property"> = 0</em><a class="headerlink" href="#motorContl.MotionStateE.CHASE_BALL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="motorContl.MotionStateE.GO_TO_STATION">
+<code class="sig-name descname">GO_TO_STATION</code><em class="property"> = 1</em><a class="headerlink" href="#motorContl.MotionStateE.GO_TO_STATION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="motorContl.MotionStateE.PREPARE_RESTART">
+<code class="sig-name descname">PREPARE_RESTART</code><em class="property"> = 2</em><a class="headerlink" href="#motorContl.MotionStateE.PREPARE_RESTART" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="motorContl.MotorControlPostProcessor">
+<em class="property">class </em><code class="sig-prename descclassname">motorContl.</code><code class="sig-name descname">MotorControlPostProcessor</code><a class="reference internal" href="_modules/motorContl.html#MotorControlPostProcessor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#motorContl.MotorControlPostProcessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="attribute">
+<dt id="motorContl.MotorControlPostProcessor.SPEED_ESCAPE_FROM_SWING">
+<code class="sig-name descname">SPEED_ESCAPE_FROM_SWING</code><em class="property"> = (5, 5)</em><a class="headerlink" href="#motorContl.MotorControlPostProcessor.SPEED_ESCAPE_FROM_SWING" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="motorContl.MotorControlPostProcessor.THRESHOLD_COUNT_SWING_DETECT">
+<code class="sig-name descname">THRESHOLD_COUNT_SWING_DETECT</code><em class="property"> = 3</em><a class="headerlink" href="#motorContl.MotorControlPostProcessor.THRESHOLD_COUNT_SWING_DETECT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="motorContl.MotorControlPostProcessor.THRESHOLD_TIME_SWING_DETECT">
+<code class="sig-name descname">THRESHOLD_TIME_SWING_DETECT</code><em class="property"> = 2</em><a class="headerlink" href="#motorContl.MotorControlPostProcessor.THRESHOLD_TIME_SWING_DETECT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="motorContl.MotorControlPostProcessor.TIME_ESCAPE_FROM_SWING">
+<code class="sig-name descname">TIME_ESCAPE_FROM_SWING</code><em class="property"> = 1</em><a class="headerlink" href="#motorContl.MotorControlPostProcessor.TIME_ESCAPE_FROM_SWING" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="motorContl.MotorControlPostProcessor.escapeSwing">
+<code class="sig-name descname">escapeSwing</code><span class="sig-paren">(</span><em class="sig-param">motorPowers</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/motorContl.html#MotorControlPostProcessor.escapeSwing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#motorContl.MotorControlPostProcessor.escapeSwing" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="motorContl.MotorControlPostProcessor.isNeedToEscapeSwing">
+<code class="sig-name descname">isNeedToEscapeSwing</code><span class="sig-paren">(</span><em class="sig-param">motorPowers</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/motorContl.html#MotorControlPostProcessor.isNeedToEscapeSwing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#motorContl.MotorControlPostProcessor.isNeedToEscapeSwing" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="motorContl.MotorControlPostProcessor.isSwingStarted">
+<code class="sig-name descname">isSwingStarted</code><span class="sig-paren">(</span><em class="sig-param">motorPowers</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/motorContl.html#MotorControlPostProcessor.isSwingStarted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#motorContl.MotorControlPostProcessor.isSwingStarted" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="motorContl.MotorControlPostProcessor.updateCountDerectionChangeDetectSwing">
+<code class="sig-name descname">updateCountDerectionChangeDetectSwing</code><span class="sig-paren">(</span><em class="sig-param">motorPowers</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/motorContl.html#MotorControlPostProcessor.updateCountDerectionChangeDetectSwing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#motorContl.MotorControlPostProcessor.updateCountDerectionChangeDetectSwing" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="motorContl.MotorController">
+<em class="property">class </em><code class="sig-prename descclassname">motorContl.</code><code class="sig-name descname">MotorController</code><a class="reference internal" href="_modules/motorContl.html#MotorController"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#motorContl.MotorController" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="attribute">
+<dt id="motorContl.MotorController.CORRECTION_VALUE_BALL_ANGLE_TO_SPEED">
+<code class="sig-name descname">CORRECTION_VALUE_BALL_ANGLE_TO_SPEED</code><em class="property"> = 3</em><a class="headerlink" href="#motorContl.MotorController.CORRECTION_VALUE_BALL_ANGLE_TO_SPEED" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="motorContl.MotorController.CORRECTION_VALUE_DISTANCE_TO_SPEED">
+<code class="sig-name descname">CORRECTION_VALUE_DISTANCE_TO_SPEED</code><em class="property"> = 100</em><a class="headerlink" href="#motorContl.MotorController.CORRECTION_VALUE_DISTANCE_TO_SPEED" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="motorContl.MotorController.DEBUG_CHASE_ALGORITHM">
+<code class="sig-name descname">DEBUG_CHASE_ALGORITHM</code><em class="property"> = 1</em><a class="headerlink" href="#motorContl.MotorController.DEBUG_CHASE_ALGORITHM" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="motorContl.MotorController.DEBUG_SHOOT_ALGORITHM">
+<code class="sig-name descname">DEBUG_SHOOT_ALGORITHM</code><em class="property"> = 2</em><a class="headerlink" href="#motorContl.MotorController.DEBUG_SHOOT_ALGORITHM" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="motorContl.MotorController.DIC_SETTING_TO_MOTOR_VALUE">
+<code class="sig-name descname">DIC_SETTING_TO_MOTOR_VALUE</code><em class="property"> = {'STOP': (0, 0)}</em><a class="headerlink" href="#motorContl.MotorController.DIC_SETTING_TO_MOTOR_VALUE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="motorContl.MotorController.K_CHASE_ANGLE">
+<code class="sig-name descname">K_CHASE_ANGLE</code><em class="property"> = 0.5</em><a class="headerlink" href="#motorContl.MotorController.K_CHASE_ANGLE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="motorContl.MotorController.SPEED_CHASE">
+<code class="sig-name descname">SPEED_CHASE</code><em class="property"> = 50</em><a class="headerlink" href="#motorContl.MotorController.SPEED_CHASE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="motorContl.MotorController.SPEED_DISTANCE_INFINITE">
+<code class="sig-name descname">SPEED_DISTANCE_INFINITE</code><em class="property"> = 25</em><a class="headerlink" href="#motorContl.MotorController.SPEED_DISTANCE_INFINITE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="motorContl.MotorController.SPEED_FRONT_BALL">
+<code class="sig-name descname">SPEED_FRONT_BALL</code><em class="property"> = 30</em><a class="headerlink" href="#motorContl.MotorController.SPEED_FRONT_BALL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="motorContl.MotorController.SPEED_FRONT_GOAL">
+<code class="sig-name descname">SPEED_FRONT_GOAL</code><em class="property"> = 25</em><a class="headerlink" href="#motorContl.MotorController.SPEED_FRONT_GOAL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="motorContl.MotorController.SPEED_NOTHING_TO_DO">
+<code class="sig-name descname">SPEED_NOTHING_TO_DO</code><em class="property"> = (5, -5)</em><a class="headerlink" href="#motorContl.MotorController.SPEED_NOTHING_TO_DO" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="motorContl.MotorController.SPEED_STOP">
+<code class="sig-name descname">SPEED_STOP</code><em class="property"> = (0, 0)</em><a class="headerlink" href="#motorContl.MotorController.SPEED_STOP" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="motorContl.MotorController.SPEED_SWING_ROTATE">
+<code class="sig-name descname">SPEED_SWING_ROTATE</code><em class="property"> = (50, -50)</em><a class="headerlink" href="#motorContl.MotorController.SPEED_SWING_ROTATE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="motorContl.MotorController.THRESHOLD_BALL_DETECT">
+<code class="sig-name descname">THRESHOLD_BALL_DETECT</code><em class="property"> = 0.05</em><a class="headerlink" href="#motorContl.MotorController.THRESHOLD_BALL_DETECT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="motorContl.MotorController.calcAndSendMotorPowers">
+<code class="sig-name descname">calcAndSendMotorPowers</code><span class="sig-paren">(</span><em class="sig-param">shmem</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/motorContl.html#MotorController.calcAndSendMotorPowers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#motorContl.MotorController.calcAndSendMotorPowers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="motorContl.MotorController.calcDiffRondOffWithin100">
+<code class="sig-name descname">calcDiffRondOffWithin100</code><span class="sig-paren">(</span><em class="sig-param">num</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/motorContl.html#MotorController.calcDiffRondOffWithin100"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#motorContl.MotorController.calcDiffRondOffWithin100" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="motorContl.MotorController.calcMotorPowers">
+<code class="sig-name descname">calcMotorPowers</code><span class="sig-paren">(</span><em class="sig-param">shmem</em>, <em class="sig-param">motion_status</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/motorContl.html#MotorController.calcMotorPowers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#motorContl.MotorController.calcMotorPowers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="motorContl.MotorController.calcMotorPowersByBallAngle">
+<code class="sig-name descname">calcMotorPowersByBallAngle</code><span class="sig-paren">(</span><em class="sig-param">ballAngle</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/motorContl.html#MotorController.calcMotorPowersByBallAngle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#motorContl.MotorController.calcMotorPowersByBallAngle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="motorContl.MotorController.calcMotorPowersByBallAngleAndDis">
+<code class="sig-name descname">calcMotorPowersByBallAngleAndDis</code><span class="sig-paren">(</span><em class="sig-param">ballAngle</em>, <em class="sig-param">ballDis</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/motorContl.html#MotorController.calcMotorPowersByBallAngleAndDis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#motorContl.MotorController.calcMotorPowersByBallAngleAndDis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="motorContl.MotorController.close">
+<code class="sig-name descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/motorContl.html#MotorController.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#motorContl.MotorController.close" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="motorContl.MotorController.roundOffMotorSpeeds">
+<code class="sig-name descname">roundOffMotorSpeeds</code><span class="sig-paren">(</span><em class="sig-param">motorSpeeds</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/motorContl.html#MotorController.roundOffMotorSpeeds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#motorContl.MotorController.roundOffMotorSpeeds" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="motorContl.MotorController.roundOffWithin100">
+<code class="sig-name descname">roundOffWithin100</code><span class="sig-paren">(</span><em class="sig-param">num</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/motorContl.html#MotorController.roundOffWithin100"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#motorContl.MotorController.roundOffWithin100" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="motorContl.MotorController.target">
+<code class="sig-name descname">target</code><span class="sig-paren">(</span><em class="sig-param">shmem</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/motorContl.html#MotorController.target"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#motorContl.MotorController.target" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Koya Aoki
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,222 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>socketServer &mdash; collect_ball 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> collect_ball
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">collect_ball</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>socketServer</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for socketServer</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">debug</span> <span class="k">import</span> <span class="n">INFO</span><span class="p">,</span> <span class="n">DEBUG</span>
+<span class="kn">from</span> <span class="nn">websocket_server</span> <span class="k">import</span> <span class="n">WebsocketServer</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+
+<span class="c1"># Callback functions</span>
+<div class="viewcode-block" id="new_client"><a class="viewcode-back" href="../socketServer.html#socketServer.new_client">[docs]</a><span class="k">def</span> <span class="nf">new_client</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">server</span><span class="p">):</span>
+    <span class="n">INFO</span><span class="p">(</span><span class="s1">&#39;New client &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">client</span><span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;:&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">client</span><span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39; has joined.&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="client_left"><a class="viewcode-back" href="../socketServer.html#socketServer.client_left">[docs]</a><span class="k">def</span> <span class="nf">client_left</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">server</span><span class="p">):</span>
+    <span class="n">INFO</span><span class="p">(</span><span class="s1">&#39;Client &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">client</span><span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;:&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">client</span><span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39; has left.&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="message_received"><a class="viewcode-back" href="../socketServer.html#socketServer.message_received">[docs]</a><span class="k">def</span> <span class="nf">message_received</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">server</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+    <span class="n">DEBUG</span><span class="p">(</span><span class="s1">&#39;Message has been received from &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">client</span><span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;:&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">client</span><span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">message_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">message_dict</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;guide_info&#39;</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;./guide_info.json&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="n">INFO</span><span class="p">(</span><span class="s1">&#39;faild to get color data&#39;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">:</span>
+        <span class="n">INFO</span><span class="p">(</span><span class="s1">&#39;faild to decode message to json&#39;</span><span class="p">)</span></div>
+
+
+<span class="c1"># Main</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">server</span> <span class="o">=</span> <span class="n">WebsocketServer</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">9001</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s1">&#39;192.168.100.122&#39;</span><span class="p">,</span> <span class="n">loglevel</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+    <span class="n">server</span><span class="o">.</span><span class="n">set_fn_new_client</span><span class="p">(</span><span class="n">new_client</span><span class="p">)</span>
+    <span class="n">server</span><span class="o">.</span><span class="n">set_fn_client_left</span><span class="p">(</span><span class="n">client_left</span><span class="p">)</span>
+    <span class="n">server</span><span class="o">.</span><span class="n">set_fn_message_received</span><span class="p">(</span><span class="n">message_received</span><span class="p">)</span>
+    
+    <span class="n">server</span><span class="o">.</span><span class="n">run_forever</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Koya Aoki
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

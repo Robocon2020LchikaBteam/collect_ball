@@ -1,0 +1,413 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>imageProcessing &mdash; collect_ball 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> collect_ball
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">collect_ball</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>imageProcessing</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for imageProcessing</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: UTF-8</span>
+
+<span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">IntEnum</span>
+<span class="kn">from</span> <span class="nn">debug</span> <span class="k">import</span> <span class="n">ERROR</span><span class="p">,</span> <span class="n">WARN</span><span class="p">,</span> <span class="n">INFO</span><span class="p">,</span> <span class="n">DEBUG</span><span class="p">,</span> <span class="n">TRACE</span>
+
+<span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">picamera</span>
+<span class="kn">import</span> <span class="nn">picamera.array</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">atan2</span><span class="p">,</span> <span class="n">degrees</span><span class="p">,</span> <span class="n">hypot</span>
+
+
+<div class="viewcode-block" id="ImageProcessing"><a class="viewcode-back" href="../imageProcessing.html#imageProcessing.ImageProcessing">[docs]</a><span class="k">class</span> <span class="nc">ImageProcessing</span><span class="p">:</span>
+    <span class="c1"># 画像出力の有効無効</span>
+    <span class="n">ENABLE</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">DISABLE</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">DEBUG_IMSHOW</span> <span class="o">=</span> <span class="n">DISABLE</span>
+
+    <span class="c1"># マスクパラメータはあんまり厳しくしすぎると、本番で認識しないという事態になりそうで怖い</span>
+    <span class="n">RED_HSV_RANGE_MIN_1</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">130</span><span class="p">,</span> <span class="mi">30</span><span class="p">]</span>
+    <span class="n">RED_HSV_RANGE_MAX_1</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">]</span>
+    <span class="n">RED_HSV_RANGE_MIN_2</span> <span class="o">=</span> <span class="p">[</span><span class="mi">160</span><span class="p">,</span> <span class="mi">130</span><span class="p">,</span> <span class="mi">30</span><span class="p">]</span>
+    <span class="n">RED_HSV_RANGE_MAX_2</span> <span class="o">=</span> <span class="p">[</span><span class="mi">179</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">]</span>
+    <span class="n">BLUE_HSV_RANGE_MIN</span> <span class="o">=</span> <span class="p">[</span><span class="mi">55</span><span class="p">,</span> <span class="mi">70</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span>
+    <span class="n">BLUE_HSV_RANGE_MAX</span> <span class="o">=</span> <span class="p">[</span><span class="mi">120</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">80</span><span class="p">]</span>
+    <span class="n">YELLOW_HSV_RANGE_MIN</span> <span class="o">=</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">127</span><span class="p">,</span> <span class="mi">30</span><span class="p">]</span>
+    <span class="n">YELLOW_HSV_RANGE_MAX</span> <span class="o">=</span> <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">]</span>
+
+    <span class="n">CAMERA_CENTER_CX</span> <span class="o">=</span> <span class="mi">240</span>
+    <span class="n">CAMERA_CENTER_CY</span> <span class="o">=</span> <span class="mi">240</span>
+    
+    <span class="c1"># 色認識において、これ以下の面積の結果は無視する</span>
+    <span class="n">IGNORE_AREA_SIZE_BALL</span> <span class="o">=</span> <span class="mi">1000</span>
+    <span class="n">IGNORE_AREA_SIZE_YELLOW</span> <span class="o">=</span> <span class="mi">1000</span>
+
+    <span class="c1"># @brief コンスタラクタ</span>
+    <span class="c1"># @detail 初期化処理を行う</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">TRACE</span><span class="p">(</span><span class="s1">&#39;ImageProcessing generated&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># @brief 指定色の最大領域を検知する</span>
+    <span class="c1"># @param hsv_img HSV変換後の処理対象画像</span>
+    <span class="c1"># @param color_name 検知する色の名前</span>
+    <span class="c1"># @detail</span>
+<div class="viewcode-block" id="ImageProcessing.colorDetect2"><a class="viewcode-back" href="../imageProcessing.html#imageProcessing.ImageProcessing.colorDetect2">[docs]</a>    <span class="k">def</span> <span class="nf">colorDetect2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hsv_img</span><span class="p">,</span> <span class="n">color_name</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">color_name</span> <span class="o">==</span> <span class="s1">&#39;RED&#39;</span><span class="p">:</span>
+            <span class="c1"># 赤色のHSVの値域1</span>
+            <span class="n">hsv_range_min</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">RED_HSV_RANGE_MIN_1</span>
+            <span class="n">hsv_range_max</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">RED_HSV_RANGE_MAX_1</span>
+            <span class="n">mask1</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">inRange</span><span class="p">(</span><span class="n">hsv_img</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hsv_range_min</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hsv_range_max</span><span class="p">))</span>
+
+            <span class="c1"># 赤色のHSVの値域2</span>
+            <span class="n">hsv_range_min</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">RED_HSV_RANGE_MIN_2</span>
+            <span class="n">hsv_range_max</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">RED_HSV_RANGE_MAX_2</span>
+            <span class="n">mask2</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">inRange</span><span class="p">(</span><span class="n">hsv_img</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hsv_range_min</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hsv_range_max</span><span class="p">))</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">mask1</span> <span class="o">+</span> <span class="n">mask2</span>
+        <span class="k">elif</span> <span class="n">color_name</span> <span class="o">==</span> <span class="s1">&#39;YELLOW&#39;</span><span class="p">:</span>
+            <span class="n">hsv_range_min</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">YELLOW_HSV_RANGE_MIN</span>
+            <span class="n">hsv_range_max</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">YELLOW_HSV_RANGE_MAX</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">inRange</span><span class="p">(</span><span class="n">hsv_img</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hsv_range_min</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hsv_range_max</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">color_name</span> <span class="o">==</span> <span class="s1">&#39;BLUE&#39;</span><span class="p">:</span>
+            <span class="n">hsv_range_min</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">BLUE_HSV_RANGE_MIN</span>
+            <span class="n">hsv_range_max</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">BLUE_HSV_RANGE_MAX</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">inRange</span><span class="p">(</span><span class="n">hsv_img</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hsv_range_min</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hsv_range_max</span><span class="p">))</span>
+            
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEBUG_IMSHOW</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">ENABLE</span><span class="p">:</span>
+            <span class="n">cv2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="s1">&#39;Mask&#39;</span> <span class="o">+</span> <span class="n">color_name</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+
+        <span class="n">_</span><span class="p">,</span> <span class="n">contours</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">findContours</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">RETR_TREE</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">CHAIN_APPROX_SIMPLE</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">color_name</span> <span class="o">==</span> <span class="s1">&#39;RED&#39;</span> <span class="ow">or</span> <span class="n">color_name</span> <span class="o">==</span> <span class="s1">&#39;BLUE&#39;</span><span class="p">:</span>
+            <span class="n">convex_hull_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">contour</span> <span class="ow">in</span> <span class="n">contours</span><span class="p">:</span>
+                <span class="n">approx</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">convexHull</span><span class="p">(</span><span class="n">contour</span><span class="p">)</span>
+
+                <span class="n">M</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">moments</span><span class="p">(</span><span class="n">approx</span><span class="p">)</span>
+                <span class="n">convex_hull_list</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;approx&#39;</span><span class="p">:</span> <span class="n">approx</span><span class="p">,</span> <span class="s1">&#39;moment&#39;</span><span class="p">:</span> <span class="n">M</span><span class="p">})</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">convex_hull_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">max_convex_hull</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">convex_hull_list</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;moment&#39;</span><span class="p">][</span><span class="s1">&#39;m00&#39;</span><span class="p">]))</span>
+                <span class="k">if</span> <span class="n">max_convex_hull</span><span class="p">[</span><span class="s1">&#39;moment&#39;</span><span class="p">][</span><span class="s1">&#39;m00&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">area_size</span> <span class="o">=</span> <span class="n">max_convex_hull</span><span class="p">[</span><span class="s1">&#39;moment&#39;</span><span class="p">][</span><span class="s1">&#39;m00&#39;</span><span class="p">]</span>
+
+                    <span class="n">cx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_convex_hull</span><span class="p">[</span><span class="s1">&#39;moment&#39;</span><span class="p">][</span><span class="s1">&#39;m10&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">max_convex_hull</span><span class="p">[</span><span class="s1">&#39;moment&#39;</span><span class="p">][</span><span class="s1">&#39;m00&#39;</span><span class="p">])</span>
+                    <span class="n">cy</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_convex_hull</span><span class="p">[</span><span class="s1">&#39;moment&#39;</span><span class="p">][</span><span class="s1">&#39;m01&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">max_convex_hull</span><span class="p">[</span><span class="s1">&#39;moment&#39;</span><span class="p">][</span><span class="s1">&#39;m00&#39;</span><span class="p">])</span>
+
+                    <span class="k">return</span> <span class="n">cx</span><span class="p">,</span> <span class="n">cy</span><span class="p">,</span> <span class="n">area_size</span><span class="p">,</span> <span class="n">max_convex_hull</span><span class="p">[</span><span class="s1">&#39;approx&#39;</span><span class="p">]</span>
+                <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="p">[]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="p">[]</span>
+        <span class="k">elif</span> <span class="n">color_name</span> <span class="o">==</span> <span class="s1">&#39;YELLOW&#39;</span><span class="p">:</span>
+            <span class="n">convex_hull_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">contour</span> <span class="ow">in</span> <span class="n">contours</span><span class="p">:</span>
+                <span class="n">approx</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">approxPolyDP</span><span class="p">(</span><span class="n">contour</span><span class="p">,</span> <span class="mf">0.01</span> <span class="o">*</span> <span class="n">cv2</span><span class="o">.</span><span class="n">arcLength</span><span class="p">(</span><span class="n">contour</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+                <span class="c1"># 四角形に近い形のみ扱う</span>
+                <span class="k">if</span> <span class="mi">3</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">approx</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+                    <span class="n">M</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">moments</span><span class="p">(</span><span class="n">approx</span><span class="p">)</span>
+                    <span class="n">convex_hull_list</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;approx&#39;</span><span class="p">:</span> <span class="n">approx</span><span class="p">,</span> <span class="s1">&#39;moment&#39;</span><span class="p">:</span> <span class="n">M</span><span class="p">})</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">convex_hull_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">max_convex_hull</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">convex_hull_list</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;moment&#39;</span><span class="p">][</span><span class="s1">&#39;m00&#39;</span><span class="p">]))</span>
+                <span class="k">if</span> <span class="n">max_convex_hull</span><span class="p">[</span><span class="s1">&#39;moment&#39;</span><span class="p">][</span><span class="s1">&#39;m00&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">area_size</span> <span class="o">=</span> <span class="n">max_convex_hull</span><span class="p">[</span><span class="s1">&#39;moment&#39;</span><span class="p">][</span><span class="s1">&#39;m00&#39;</span><span class="p">]</span>
+
+                    <span class="n">cx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_convex_hull</span><span class="p">[</span><span class="s1">&#39;moment&#39;</span><span class="p">][</span><span class="s1">&#39;m10&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">max_convex_hull</span><span class="p">[</span><span class="s1">&#39;moment&#39;</span><span class="p">][</span><span class="s1">&#39;m00&#39;</span><span class="p">])</span>
+                    <span class="n">cy</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_convex_hull</span><span class="p">[</span><span class="s1">&#39;moment&#39;</span><span class="p">][</span><span class="s1">&#39;m01&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">max_convex_hull</span><span class="p">[</span><span class="s1">&#39;moment&#39;</span><span class="p">][</span><span class="s1">&#39;m00&#39;</span><span class="p">])</span>
+
+                    <span class="k">return</span> <span class="n">cx</span><span class="p">,</span> <span class="n">cy</span><span class="p">,</span> <span class="n">area_size</span><span class="p">,</span> <span class="n">max_convex_hull</span><span class="p">[</span><span class="s1">&#39;approx&#39;</span><span class="p">]</span>
+                <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="p">[]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="p">[]</span></div>
+
+    <span class="c1"># @brief 十字マーカーを描画する</span>
+    <span class="c1"># @param x 十字マーカーのx座標</span>
+    <span class="c1"># @param y 十字マーカーのy座標</span>
+    <span class="c1"># @param marker_color 十字マーカーの色</span>
+<div class="viewcode-block" id="ImageProcessing.draw_marker"><a class="viewcode-back" href="../imageProcessing.html#imageProcessing.ImageProcessing.draw_marker">[docs]</a>    <span class="k">def</span> <span class="nf">draw_marker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">marker_color</span><span class="p">):</span>
+        <span class="n">cv2</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="mi">7</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">7</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">cv2</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">-</span> <span class="mi">7</span><span class="p">),</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">7</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">cv2</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="mi">7</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">7</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="n">marker_color</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">cv2</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">-</span> <span class="mi">7</span><span class="p">),</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">7</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="n">marker_color</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
+    <span class="c1"># @brief 画像処理によって検知した領域からボールの方向と距離を計算する</span>
+    <span class="c1"># @param cx 領域のx座標</span>
+    <span class="c1"># @param cy 領域のy座標</span>
+    <span class="c1"># @param area_size 領域の面積</span>
+<div class="viewcode-block" id="ImageProcessing.calcBallDirection"><a class="viewcode-back" href="../imageProcessing.html#imageProcessing.ImageProcessing.calcBallDirection">[docs]</a>    <span class="k">def</span> <span class="nf">calcBallDirection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cx</span><span class="p">,</span> <span class="n">cy</span><span class="p">):</span>
+        <span class="n">ball_angle</span> <span class="o">=</span> <span class="n">cx</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">CAMERA_CENTER_CX</span>
+        <span class="n">ball_distance</span> <span class="o">=</span> <span class="n">cy</span>
+        
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">ball_angle</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">ball_distance</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageProcessing.imageProcessingFrame"><a class="viewcode-back" href="../imageProcessing.html#imageProcessing.ImageProcessing.imageProcessingFrame">[docs]</a>    <span class="k">def</span> <span class="nf">imageProcessingFrame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
+        <span class="c1"># HSV色空間に変換</span>
+        <span class="n">hsv_img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2HSV</span><span class="p">)</span>
+        <span class="n">cv2</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">CAMERA_CENTER_CX</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">CAMERA_CENTER_CX</span><span class="p">,</span> <span class="mi">480</span><span class="p">),</span>
+                 <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">cv2</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">CAMERA_CENTER_CY</span><span class="p">),</span> <span class="p">(</span><span class="mi">480</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">CAMERA_CENTER_CY</span><span class="p">),</span>
+                 <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># 赤色領域の検知</span>
+        <span class="n">red_cx</span><span class="p">,</span> <span class="n">red_cy</span><span class="p">,</span> <span class="n">red_area_size</span><span class="p">,</span> <span class="n">red_convex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">colorDetect2</span><span class="p">(</span><span class="n">hsv_img</span><span class="p">,</span> <span class="s1">&#39;RED&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">red_cx</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">draw_marker</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">red_cx</span><span class="p">,</span> <span class="n">red_cy</span><span class="p">,</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">))</span>
+        
+        <span class="c1"># 黄色領域の検知</span>
+        <span class="n">yellow_cx</span><span class="p">,</span> <span class="n">yellow_cy</span><span class="p">,</span> <span class="n">yellow_area_size</span><span class="p">,</span> <span class="n">yellow_convex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">colorDetect2</span><span class="p">(</span><span class="n">hsv_img</span><span class="p">,</span> <span class="s1">&#39;YELLOW&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">yellow_cx</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">draw_marker</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">yellow_cx</span><span class="p">,</span> <span class="n">yellow_cy</span><span class="p">,</span> <span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+
+        <span class="c1"># 青色領域の検知</span>
+        <span class="n">blue_cx</span><span class="p">,</span> <span class="n">blue_cy</span><span class="p">,</span> <span class="n">blue_area_size</span><span class="p">,</span> <span class="n">blue_convex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">colorDetect2</span><span class="p">(</span><span class="n">hsv_img</span><span class="p">,</span> <span class="s1">&#39;BLUE&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">blue_cx</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">draw_marker</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">blue_cx</span><span class="p">,</span> <span class="n">blue_cy</span><span class="p">,</span> <span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+        
+        <span class="n">INFO</span><span class="p">(</span><span class="s1">&#39;RedSize :&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">red_area_size</span><span class="p">)</span><span class="o">.</span><span class="n">rjust</span><span class="p">(</span><span class="mi">8</span><span class="p">))</span>
+        <span class="n">INFO</span><span class="p">(</span><span class="s1">&#39;YellowSize :&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">yellow_area_size</span><span class="p">)</span><span class="o">.</span><span class="n">rjust</span><span class="p">(</span><span class="mi">8</span><span class="p">))</span>
+        <span class="n">INFO</span><span class="p">(</span><span class="s1">&#39;BlueSize :&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">blue_area_size</span><span class="p">)</span><span class="o">.</span><span class="n">rjust</span><span class="p">(</span><span class="mi">8</span><span class="p">))</span>
+
+        <span class="c1"># 認識できた部分の面積が小さい場合は結果を無視し、distanceに不正な値を入れる</span>
+        <span class="k">if</span> <span class="n">red_area_size</span> <span class="o">&gt;</span> <span class="n">blue_area_size</span> <span class="ow">and</span> <span class="n">red_area_size</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">IGNORE_AREA_SIZE_BALL</span><span class="p">:</span>
+            <span class="n">DEBUG</span><span class="p">(</span><span class="s1">&#39;use RED area&#39;</span><span class="p">)</span>
+            <span class="n">ball_angle</span><span class="p">,</span> <span class="n">ball_distance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calcBallDirection</span><span class="p">(</span><span class="n">red_cx</span><span class="p">,</span> <span class="n">red_cy</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">blue_area_size</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">IGNORE_AREA_SIZE_BALL</span><span class="p">:</span>
+            <span class="n">DEBUG</span><span class="p">(</span><span class="s1">&#39;use BLUE area&#39;</span><span class="p">)</span>
+            <span class="n">ball_angle</span><span class="p">,</span> <span class="n">ball_distance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calcBallDirection</span><span class="p">(</span><span class="n">blue_cx</span><span class="p">,</span> <span class="n">blue_cy</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ball_angle</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">ball_distance</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">if</span> <span class="n">yellow_area_size</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">IGNORE_AREA_SIZE_YELLOW</span><span class="p">:</span>
+            <span class="n">station_angle</span><span class="p">,</span> <span class="n">station_distance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calcBallDirection</span><span class="p">(</span><span class="n">yellow_cx</span><span class="p">,</span> <span class="n">yellow_cy</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">station_angle</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">station_distance</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">ball_angle</span><span class="p">,</span> <span class="n">ball_distance</span><span class="p">,</span> <span class="n">station_angle</span><span class="p">,</span> <span class="n">station_distance</span></div>
+
+    <span class="c1"># @brief 画像処理のmain処理</span>
+    <span class="c1"># @param shmem 共有メモリ</span>
+<div class="viewcode-block" id="ImageProcessing.imageProcessingMain"><a class="viewcode-back" href="../imageProcessing.html#imageProcessing.ImageProcessing.imageProcessingMain">[docs]</a>    <span class="k">def</span> <span class="nf">imageProcessingMain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shmem</span><span class="p">):</span>
+        <span class="c1"># 画像処理を行う</span>
+
+        <span class="k">with</span> <span class="n">picamera</span><span class="o">.</span><span class="n">PiCamera</span><span class="p">()</span> <span class="k">as</span> <span class="n">camera</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">picamera</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">PiRGBArray</span><span class="p">(</span><span class="n">camera</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
+                <span class="n">camera</span><span class="o">.</span><span class="n">resolution</span> <span class="o">=</span> <span class="p">(</span><span class="mi">480</span><span class="p">,</span> <span class="mi">480</span><span class="p">)</span>
+                <span class="n">cap</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+                <span class="k">while</span> <span class="n">cap</span><span class="o">.</span><span class="n">isOpened</span><span class="p">():</span>
+                    <span class="c1"># 画像を取得し、stream.arrayにRGBの順で映像データを格納</span>
+                    <span class="n">camera</span><span class="o">.</span><span class="n">capture</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="s1">&#39;bgr&#39;</span><span class="p">,</span> <span class="n">use_video_port</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+                    <span class="n">ball_angle</span><span class="p">,</span> <span class="n">ball_distance</span><span class="p">,</span> <span class="n">station_angle</span><span class="p">,</span> <span class="n">station_distance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">imageProcessingFrame</span><span class="p">(</span><span class="n">stream</span><span class="o">.</span><span class="n">array</span><span class="p">)</span>
+
+                    <span class="n">DEBUG</span><span class="p">(</span><span class="s1">&#39;ball: angle =&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ball_angle</span><span class="p">)</span><span class="o">.</span><span class="n">rjust</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;, distance = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ball_distance</span><span class="p">)</span><span class="o">.</span><span class="n">rjust</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+                    <span class="n">DEBUG</span><span class="p">(</span><span class="s1">&#39;station: angle =&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">station_angle</span><span class="p">)</span><span class="o">.</span><span class="n">rjust</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;, distance = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">station_distance</span><span class="p">)</span><span class="o">.</span><span class="n">rjust</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+                    
+                    <span class="c1"># 結果表示</span>
+                    <span class="c1"># 画角の前後左右と画像表示の上下左右を揃えるために画像を転置する。</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEBUG_IMSHOW</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">ENABLE</span><span class="p">:</span>
+                        <span class="n">cv2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="s1">&#39;Frame&#39;</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">stream</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+                        <span class="n">cv2</span><span class="o">.</span><span class="n">moveWindow</span><span class="p">(</span><span class="s1">&#39;Frame&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
+                        <span class="n">cv2</span><span class="o">.</span><span class="n">moveWindow</span><span class="p">(</span><span class="s1">&#39;MaskRED&#39;</span><span class="p">,</span> <span class="mi">482</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
+                        <span class="n">cv2</span><span class="o">.</span><span class="n">moveWindow</span><span class="p">(</span><span class="s1">&#39;MaskYELLOW&#39;</span><span class="p">,</span> <span class="mi">964</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
+              
+                    <span class="c1"># 共有メモリに書き込む</span>
+                    <span class="n">shmem</span><span class="o">.</span><span class="n">ballAngle</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ball_angle</span> <span class="o">*</span> <span class="mi">90</span> <span class="o">/</span> <span class="mi">240</span><span class="p">)</span>
+                    <span class="n">shmem</span><span class="o">.</span><span class="n">ballDis</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ball_distance</span><span class="p">)</span>
+                    <span class="n">shmem</span><span class="o">.</span><span class="n">stationAngle</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">station_angle</span> <span class="o">*</span> <span class="mi">90</span> <span class="o">/</span> <span class="mi">240</span><span class="p">)</span>
+                    <span class="n">shmem</span><span class="o">.</span><span class="n">stationDis</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">station_distance</span><span class="p">)</span>
+
+                    <span class="c1"># &quot;q&quot;でウィンドウを閉じる</span>
+                    <span class="k">if</span> <span class="n">cv2</span><span class="o">.</span><span class="n">waitKey</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xFF</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;q&quot;</span><span class="p">):</span>
+                        <span class="k">break</span>
+
+                    <span class="c1"># streamをリセット</span>
+                    <span class="n">stream</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="n">stream</span><span class="o">.</span><span class="n">truncate</span><span class="p">()</span>
+                <span class="n">cv2</span><span class="o">.</span><span class="n">destroyAllWindows</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ImageProcessing.target"><a class="viewcode-back" href="../imageProcessing.html#imageProcessing.ImageProcessing.target">[docs]</a>    <span class="k">def</span> <span class="nf">target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shmem</span><span class="p">):</span>
+        <span class="n">TRACE</span><span class="p">(</span><span class="s1">&#39;imageProcessingMain target() start&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">imageProcessingMain</span><span class="p">(</span><span class="n">shmem</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageProcessing.close"><a class="viewcode-back" href="../imageProcessing.html#imageProcessing.ImageProcessing.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">():</span>
+        <span class="k">pass</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Koya Aoki
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -7,6 +7,7 @@ from motorContl import MotorController
 from imageProcessing import ImageProcessing
 from imu import Imu
 # from socketServer import Server
+from sound import Sound
 from debug import ERROR, WARN, INFO, DEBUG, TRACE
 
 """
@@ -20,7 +21,8 @@ main module
 class Point(Structure):
     _fields_ = [('ballAngle', c_int), ('ballDis', c_int),
                 ('stationAngle', c_int), ('stationDis', c_int),
-                ('bodyAngle', c_int), ('preparingRestart', c_bool), ('relyStation', c_bool)]
+                ('bodyAngle', c_int), ('preparingRestart', c_bool),
+                ('soundPhase', c_int)]
 
 
 def info(title):
@@ -36,6 +38,7 @@ if __name__ == '__main__':
     shmem = Value(Point, 0)
     shmem.preparingRestart = False
     shmem.relyStation = False
+    shmem.soundPhase = 0
     # モータ制御インスタンスの生成
     motorController = MotorController()
     # 画像処理インスタンスの生成
@@ -46,11 +49,13 @@ if __name__ == '__main__':
     imu.calibrate()
     # websocketサーバの生成
     # server = Server(9001)
+    sound = Sound()
 
     p_motorContl = Process(target=motorController.target, args=(shmem,))
     p_imageProcessing = Process(target=imageProcessing.target, args=(shmem,))
     p_imu = Process(target=imu.target, args=(shmem,))
     # p_server = Process(target=server.target, args=())
+    p_sound = Process(target=sound.target, args=(shmem,))
     
     p_motorContl.start()
     DEBUG('p_motorContl started')
@@ -60,8 +65,11 @@ if __name__ == '__main__':
     DEBUG('p_imu started')
     # p_server.start()
     # DEBUG('p_server started')
+    p_sound.start()
+    DEBUG('p_sound started')
 
     p_motorContl.join()
     p_imageProcessing.join()
     p_imu.join()
     # p_server.join()
+    p_sound.join()

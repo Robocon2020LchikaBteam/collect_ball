@@ -7,6 +7,7 @@ from miniMotorDriver import MiniMotorDriver
 from servo import Servo
 from gp2y0e import Gp2y0e
 import json
+from sound import SoundPhaseE
 
 """
 
@@ -46,15 +47,19 @@ class MotorController:
     # 停止
     SPEED_STOP = 0, 0
     # 首振りモード時旋回パラメータ
-    SPEED_SWING_ROTATE = 50, -50
+    SPEED_SWING_ROTATE = 80, -80
     # 設定値->モータ値対応付け用辞書
     DIC_SETTING_TO_MOTOR_VALUE = {'STOP' : (0, 0)}
 
     # 移動アルゴリズム1, 2で使用
     # ボール追跡時の基準スピード
-    SPEED_CHASE = 50
+    SPEED_CHASE = 40
     # ボール追跡時の比例項の係数
-    K_CHASE_ANGLE = 0.5  # SPEED_CHASE / 180にするとよい？
+    K_CHASE_ANGLE = 0.6  # SPEED_CHASE / 180にするとよい？
+    # 再スタート準備時の基準スピード
+    SPEED_TURN = 20
+    # 再スタート準備時の比例項の係数
+    K_TURN_ANGLE = 1
 
     # コンストラクタ
     def __init__(self):
@@ -182,6 +187,7 @@ class MotorController:
         elif motion_status == MotionStateE.GO_TO_STATION:
             TRACE('motion_status = GO_TO_STATION')
             if shmem.stationDis != -1:
+                shmem.soundPhase = SoundPhaseE.DETECT_STATION
                 return self.calcMotorPowersByBallAngle(shmem.stationAngle)
             TRACE('shmem.ballDis is invalid value')
             # センターカメラから指令が来ていたらguide_info.jsonに有効な値が入っている
@@ -190,6 +196,7 @@ class MotorController:
                     guide_info_json = json.load(f)
                     guide_degree = guide_info_json.get('degree', 360)
                     if guide_degree != 360:
+                        shmem.soundPhase = SoundPhaseE.RECV_CAMERA_INFO
                         DEBUG('guide_degree = ' + str(guide_degree))
                         return self.calcMotorPowersByBallAngle(-guide_degree)
                 except json.JSONDecodeError:
@@ -200,9 +207,22 @@ class MotorController:
         TRACE('motion_status = PREPARE_RESTART')
         return (0, 0)
         # return self.calcMotorPowersByBallAngle(shmem.stationAngle)
-
+    
+    def prepare_restart(self, shmem):
+        self.left_motor.drive(-50)
+        self.right_motor.drive(-50)
+        time.sleep(1)
+        while True:
+            angle = shmem.bodyAngle / 10
+            if abs(angle) < 10:
+                break
+            self.left_motor.drive(MotorController.SPEED_TURN + MotorController.K_TURN_ANGLE * angle)
+            self.right_motor.drive(-MotorController.SPEED_TURN - MotorController.K_TURN_ANGLE * angle)
+            time.sleep(0.1)
+        
     # モータの値を計算しドライバへ送る
     def calcAndSendMotorPowers(self, shmem):
+        self.chaseBallMode.set_mode(ChaseMode.NORMAL)
         while 1:
             if self.motion_status == MotionStateE.CHASE_BALL:
                 # ボール捕獲に移る
@@ -219,10 +239,12 @@ class MotorController:
                 # ボール消失してる
                 if distanceSensorValue > 15:
                     INFO('lost ball')
+                    self.left_motor.drive(0)
+                    self.right_motor.drive(0)
                     self.servo.up()
                     self.motion_status = MotionStateE.CHASE_BALL
                 # TODO: ステーション到着後の動き
-                if 300 < shmem.stationDis < 380:
+                if 300 < shmem.stationDis < 390:
                     INFO('reached station')
                     self.left_motor.drive(0)
                     self.right_motor.drive(0)
@@ -230,7 +252,20 @@ class MotorController:
                     # ステーションに向かっている間に追跡モードがどうなっているか分からないので、通常にリセットしておく
                     self.chaseBallMode.set_mode(ChaseMode.NORMAL)
                     self.motion_status = MotionStateE.PREPARE_RESTART
-            
+            elif self.motion_status == MotionStateE.PREPARE_RESTART:
+                INFO('PREPARE RESTART start')
+                self.left_motor.drive(0)
+                self.right_motor.drive(0)
+                shmem.preparingRestart = True
+                shmem.soundPhase = SoundPhaseE.PREPARE_RESTART
+                while(shmem.preparingRestart):
+                    time.sleep(0.1)
+                self.prepare_restart(shmem)
+                self.chaseBallMode.set_mode(ChaseMode.NORMAL)
+                INFO('PREPARE RESTART end -> CHASE BALL')
+                self.motion_status = MotionStateE.CHASE_BALL
+                continue
+                    
             # モータ値計算
             motorPowers = self.calcMotorPowers(shmem, self.motion_status)
             # モーター値後処理(現在は首振り検知処理のみ)
@@ -362,7 +397,7 @@ class ChaseMode:
         self._mode = ChaseMode.NORMAL
         self._now_mode_start_time = time.time()
         self._MAX_NORMAL_TIME_SEC = 5
-        self._MAX_SWING_TIME_SEC = 4
+        self._MAX_SWING_TIME_SEC = 3
     
     def now(self):
         self.__update()

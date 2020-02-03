@@ -2,7 +2,7 @@
 
 import FaBo9Axis_MPU9250
 import time
-from debug import DEBUG, TRACE
+from debug import DEBUG, TRACE, INFO
 
 
 class Imu:
@@ -64,6 +64,7 @@ class Imu:
             # リスタート準備中フラグが立っていたら、他のモジュールが待っていてくれているので、補正値の調整をする
             # 補正が終わったらフラグをクリアして、他のモジュールに調整完了を知らせる
             if shmem.preparingRestart:
+                INFO('calibrate IMU to prepare restart')
                 self.calibrate()
                 shmem.preparingRestart = False
             gyro = self._mpu9250.readGyro()

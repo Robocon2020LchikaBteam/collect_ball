@@ -38,6 +38,7 @@ if __name__ == '__main__':
     shmem = Value(Point, 0)
     shmem.preparingRestart = False
     shmem.relyStation = False
+    shmem.soundPhase = 0
     # モータ制御インスタンスの生成
     motorController = MotorController()
     # 画像処理インスタンスの生成

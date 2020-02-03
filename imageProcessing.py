@@ -8,6 +8,7 @@ import numpy as np
 import picamera
 import picamera.array
 import os
+from sound import SoundPhaseE
 
 from math import atan2, degrees, hypot
 
@@ -133,7 +134,7 @@ class ImageProcessing:
         
         return int(ball_angle), int(ball_distance)
 
-    def imageProcessingFrame(self, frame):
+    def imageProcessingFrame(self, frame, shmem):
         # HSV色空間に変換
         hsv_img = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         cv2.line(frame, (self.CAMERA_CENTER_CX, 0), (self.CAMERA_CENTER_CX, 480),
@@ -163,9 +164,11 @@ class ImageProcessing:
         # 認識できた部分の面積が小さい場合は結果を無視し、distanceに不正な値を入れる
         if red_area_size > blue_area_size and red_area_size > self.IGNORE_AREA_SIZE_BALL:
             DEBUG('use RED area')
+            shmem.soundPhase = SoundPhaseE.DETECT_RED_BALL
             ball_angle, ball_distance = self.calcBallDirection(red_cx, red_cy)
         elif blue_area_size > self.IGNORE_AREA_SIZE_BALL:
             DEBUG('use BLUE area')
+            shmem.soundPhase = SoundPhaseE.DETECT_BLUE_BALL
             ball_angle, ball_distance = self.calcBallDirection(blue_cx, blue_cy)
         else:
             ball_angle = 0
@@ -192,7 +195,7 @@ class ImageProcessing:
                     # 画像を取得し、stream.arrayにRGBの順で映像データを格納
                     camera.capture(stream, 'bgr', use_video_port=True)
 
-                    ball_angle, ball_distance, station_angle, station_distance = self.imageProcessingFrame(stream.array)
+                    ball_angle, ball_distance, station_angle, station_distance = self.imageProcessingFrame(stream.array, shmem)
 
                     DEBUG('ball: angle =' + str(ball_angle).rjust(5) + ', distance = ' + str(ball_distance).rjust(5))
                     DEBUG('station: angle =' + str(station_angle).rjust(5) + ', distance = ' + str(station_distance).rjust(5))

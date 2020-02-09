@@ -26,7 +26,6 @@ class MotionStateE(Enum):
 # モータ制御用クラス
 class MotorController:
     # 移動アルゴリズム切り替え用変数
-    DEBUG_SHOOT_ALGORITHM = 2
     DEBUG_CHASE_ALGORITHM = 1
 
     # モータ制御用パラメータ群
@@ -56,6 +55,10 @@ class MotorController:
     SPEED_CHASE = 40
     # ボール追跡時の比例項の係数
     K_CHASE_ANGLE = 0.6  # SPEED_CHASE / 180にするとよい？
+    # ステーション指示に従う際の基準スピード
+    SPEED_STATION_GUIDE = 10
+    # ステーション指示に従う際の比例項の係数
+    K_STATION_GUIDE_ANGLE = 0.15  # SPEED_CHASE / 180にするとよい？
     # 再スタート準備時の基準スピード
     SPEED_TURN = 20
     # 再スタート準備時の比例項の係数
@@ -148,7 +151,7 @@ class MotorController:
                 MotorController.SPEED_CHASE + MotorController.K_CHASE_ANGLE * ballAngle
 
     # ボールとの角度のみを使ってモータの値を計算する
-    def calcMotorPowersByBallAngle(self, ballAngle):
+    def calcMotorPowersByBallAngle(self, ballAngle, speed, k):
         if self.DEBUG_CHASE_ALGORITHM == 0:
             # ボールが正面にある場合
             if ballAngle == 0:
@@ -176,11 +179,11 @@ class MotorController:
         if motion_status == MotionStateE.CHASE_BALL:
             TRACE('motion_status = CHASE_BALL')
             if shmem.ballDis != -1:
-                return self.calcMotorPowersByBallAngle(shmem.ballAngle)
+                return self.calcMotorPowersByBallAngle(shmem.ballAngle, MotorController.SPEED_CHASE, MotorController.K_CHASE_ANGLE)
             TRACE('shmem.ballDis is invalid value')
             if self.chaseBallMode.now() == ChaseMode.NORMAL:
                 TRACE('chaseBallMode = NORMAL')
-                return self.calcMotorPowersByBallAngle(shmem.bodyAngle / 10)
+                return self.calcMotorPowersByBallAngle(shmem.bodyAngle / 10, MotorController.SPEED_CHASE, MotorController.K_CHASE_ANGLE)
             # ボールが視界になくて、首振りモードの時はボールを見つけるためにとりあえず旋回する
             DEBUG('chaseBallMode = SWING')
             return MotorController.SPEED_SWING_ROTATE
@@ -188,7 +191,7 @@ class MotorController:
             TRACE('motion_status = GO_TO_STATION')
             if shmem.stationDis != -1:
                 shmem.soundPhase = SoundPhaseE.DETECT_STATION
-                return self.calcMotorPowersByBallAngle(shmem.stationAngle)
+                return self.calcMotorPowersByBallAngle(shmem.stationAngle, MotorController.SPEED_CHASE, MotorController.K_CHASE_ANGLE)
             TRACE('shmem.ballDis is invalid value')
             # センターカメラから指令が来ていたらguide_info.jsonに有効な値が入っている
             with open('./guide_info.json', mode='r') as f:
@@ -198,11 +201,13 @@ class MotorController:
                     if guide_degree != 360:
                         shmem.soundPhase = SoundPhaseE.RECV_CAMERA_INFO
                         DEBUG('guide_degree = ' + str(guide_degree))
-                        return self.calcMotorPowersByBallAngle(-guide_degree)
+                        return self.calcMotorPowersByBallAngle(-guide_degree, MotorController.SPEED_STATION_GUIDE,
+                                                               MotorController.K_STATION_GUIDE_ANGLE)
                 except json.JSONDecodeError:
                     ERROR('faild to load guide_info.json')
             body_angle = shmem.bodyAngle
-            return self.calcMotorPowersByBallAngle(body_angle / 10 - (body_angle / abs(body_angle) * 180))
+            return self.calcMotorPowersByBallAngle(body_angle / 10 - (body_angle / abs(body_angle) * 180), MotorController.SPEED_CHASE,
+                                                   MotorController.K_CHASE_ANGLE)
         # PREPARE_RETART
         TRACE('motion_status = PREPARE_RESTART')
         return (0, 0)

@@ -29,7 +29,7 @@ def message_received(client, server, message):
 
 # Main
 if __name__ == "__main__":
-    server = WebsocketServer(port=9001, host='192.168.100.122', loglevel=logging.INFO)
+    server = WebsocketServer(port=9001, host='192.168.100.125', loglevel=logging.INFO)
     server.set_fn_new_client(new_client)
     server.set_fn_client_left(client_left)
     server.set_fn_message_received(message_received)

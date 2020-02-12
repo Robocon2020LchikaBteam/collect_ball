@@ -17,15 +17,15 @@ class ImageProcessing:
     # 画像出力の有効無効
     ENABLE = 1
     DISABLE = 0
-    DEBUG_IMSHOW = DISABLE
+    DEBUG_IMSHOW = ENABLE
 
     # マスクパラメータはあんまり厳しくしすぎると、本番で認識しないという事態になりそうで怖い
     RED_HSV_RANGE_MIN_1 = [0, 130, 30]
     RED_HSV_RANGE_MAX_1 = [2, 255, 255]
     RED_HSV_RANGE_MIN_2 = [160, 130, 30]
     RED_HSV_RANGE_MAX_2 = [179, 255, 255]
-    BLUE_HSV_RANGE_MIN = [55, 70, 10]
-    BLUE_HSV_RANGE_MAX = [120, 150, 80]
+    BLUE_HSV_RANGE_MIN = [100, 130, 30]
+    BLUE_HSV_RANGE_MAX = [150, 255, 255]
     YELLOW_HSV_RANGE_MIN = [15, 127, 30]
     YELLOW_HSV_RANGE_MAX = [30, 255, 255]
 

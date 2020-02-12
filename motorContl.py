@@ -231,7 +231,7 @@ class MotorController:
         while 1:
             if self.motion_status == MotionStateE.CHASE_BALL:
                 # ボール捕獲に移る
-                if 100 < shmem.ballDis < 140:
+                if 90 < shmem.ballDis < 110:
                     INFO('capture ball')
                     self.left_motor.drive(0)
                     self.right_motor.drive(0)

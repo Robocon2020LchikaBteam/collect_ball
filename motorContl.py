@@ -8,6 +8,7 @@ from servo import Servo
 from gp2y0e import Gp2y0e
 import json
 from sound import SoundPhaseE
+import queue
 
 """
 
@@ -62,7 +63,7 @@ class MotorController:
     # 再スタート準備時の基準スピード
     SPEED_TURN = 20
     # 再スタート準備時の比例項の係数
-    K_TURN_ANGLE = 1
+    K_TURN_ANGLE = 1.5
 
     # コンストラクタ
     def __init__(self):
@@ -72,6 +73,7 @@ class MotorController:
         self.is_dribble_started = False
         # モータ制御後処理インスタンス生成
         self.motorControlPostProcessor = MotorControlPostProcessor()
+        self.motorControlPostProcessor.enable_escape_press_wall()
         # 距離センサ用インスタンス生成
         self.distanceSensor = Gp2y0e(0x40)
         # モータドライバ制御用インスタンス生成
@@ -201,6 +203,10 @@ class MotorController:
                     if guide_degree != 360:
                         shmem.soundPhase = SoundPhaseE.RECV_CAMERA_INFO
                         DEBUG('guide_degree = ' + str(guide_degree))
+                        # センターから停止命令が来ていたらモータ止める
+                        if guide_info_json.get('wait', False):
+                            DEBUG('recieved stop order!')
+                            return 0, 0
                         return self.calcMotorPowersByBallAngle(-guide_degree, MotorController.SPEED_STATION_GUIDE,
                                                                MotorController.K_STATION_GUIDE_ANGLE)
                 except json.JSONDecodeError:
@@ -219,7 +225,7 @@ class MotorController:
         time.sleep(1)
         while True:
             angle = shmem.bodyAngle / 10
-            if abs(angle) < 10:
+            if abs(angle) < 30:
                 break
             self.left_motor.drive(MotorController.SPEED_TURN + MotorController.K_TURN_ANGLE * angle)
             self.right_motor.drive(-MotorController.SPEED_TURN - MotorController.K_TURN_ANGLE * angle)
@@ -247,9 +253,14 @@ class MotorController:
                     self.left_motor.drive(0)
                     self.right_motor.drive(0)
                     self.servo.up()
+                    # ステーションが見えている場合はステーションにボールを渡せたと判断して再スタートする
+                    if shmem.stationDis != -1:
+                        INFO('lost ball -> in station')
+                        self.chaseBallMode.set_mode(ChaseMode.NORMAL)
+                        self.motion_status = MotionStateE.PREPARE_RESTART
                     self.motion_status = MotionStateE.CHASE_BALL
                 # TODO: ステーション到着後の動き
-                if 300 < shmem.stationDis < 390:
+                if 200 < shmem.stationDis < 310:
                     INFO('reached station')
                     self.left_motor.drive(0)
                     self.right_motor.drive(0)
@@ -275,15 +286,17 @@ class MotorController:
             motorPowers = self.calcMotorPowers(shmem, self.motion_status)
             # モーター値後処理(現在は首振り検知処理のみ)
             # motorPowers = self.motorControlPostProcessor.escapeSwing(motorPowers)
+            motorPowers = self.motorControlPostProcessor.run(motorPowers, shmem.bodyAngle / 10)
             # モータ値を正常値にまるめる
             motorPowers = self.roundOffMotorSpeeds(motorPowers)
             # モータ値送信
             self.left_motor.drive(motorPowers[0])
             self.right_motor.drive(motorPowers[1])
             # とりあえず一定時間間隔で動かす
-            INFO('motor l=' + str(motorPowers[0]).rjust(4) + ', r=' + str(motorPowers[1]).rjust(4),
-                 'red=' + str(shmem.ballAngle).rjust(4) + ',' + str(shmem.ballDis).rjust(4),
-                 'yellow=' + str(shmem.stationAngle).rjust(4) + ',' + str(shmem.stationDis).rjust(4),
+            INFO('motor r=' + str(motorPowers[0]).rjust(4) + ', l=' + str(motorPowers[1]).rjust(4),
+                 ',ball angle, distance=' + str(shmem.ballAngle).rjust(4) + ',' + str(shmem.ballDis).rjust(4),
+                 ',station angle, distance=' + str(shmem.stationAngle).rjust(4) + ',' + str(shmem.stationDis).rjust(4),
+                 ',body angle=' + str(shmem.bodyAngle / 10).rjust(4),
                  )
             time.sleep(0.1)
     
@@ -319,7 +332,58 @@ class MotorControlPostProcessor:
         self.is_escaping_swing = False
         # 首振り回避開始時刻
         self.escape_swing_start_time = time.time()
+        self._is_escape_press_wall = False
         TRACE('MotorControlPostProcessor generated')
+    
+    def run(self, motorPowers, bodyAngle):
+        if self._is_escape_press_wall:
+            motorPowers = self.__escape_press_wall(motorPowers, bodyAngle)
+        self._pw_pre_power = motorPowers
+        self._pw_pre_body_angle = bodyAngle
+        return motorPowers
+    
+    # TODO: スタック回避処理を別クラスにする
+    def enable_escape_press_wall(self, error_count=7, diff_angle=5, back_time=2, speed=30):
+        if self._is_escape_press_wall:
+            return False
+        self._pw_error_count_limit = error_count
+        self._pw_error_count_now = 0
+        self._pw_diff_angle = diff_angle
+        self._pw_back_time = back_time
+        self._pw_speed = speed
+        self._is_escape_press_wall = True
+        self._pw_pre_power = (0, 0)
+        self._pw_pre_body_angle = 9999
+        self._pw_start_back_time = time.time()
+        self._pw_enable_force_back = False
+        return True
+    
+    def disable_escape_press_wall(self):
+        self._is_escape_press_wall = False
+    
+    def __escape_press_wall(self, motorPowers, bodyAngle):
+        # すでにバック中の場合
+        if self._pw_enable_force_back:
+            if (time.time() - self._pw_start_back_time) > self._pw_back_time:
+                DEBUG('### END back for escape press wall')
+                self._pw_enable_force_back = False
+                # 壁押し付け状態判定用変数初期化
+                self._pw_error_count_now = 0
+            TRACE('### CONTINUE back for escape press wall')
+            return -self._pw_speed, -self._pw_speed
+        # 旋回しようとしているかどうか
+        # TODO: このパラメータも上位側で指定可能にする
+        if abs(self._pw_pre_power[0] - self._pw_pre_power[1]) > 100:
+            if abs(self._pw_pre_body_angle - bodyAngle) < self._pw_diff_angle:
+                DEBUG('### pressing wall count +1')
+                self._pw_error_count_now += 1
+        if self._pw_error_count_now >= self._pw_error_count_limit:
+            INFO('### detect pressing wall count')
+            self._pw_enable_force_back = True
+            self._pw_start_back_time = time.time()
+            # 別にこの時はバックしなくてもいいかもしれないが一応
+            return -self._pw_speed, -self._pw_speed
+        return motorPowers
 
     def escapeSwing(self, motorPowers):
         # 首振り回避する必要がある場合

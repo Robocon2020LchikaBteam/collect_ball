@@ -36,6 +36,7 @@ class Servo:
         # Set initial pluse length
         self._pwm.set_pwm(0, 0, initial_pulse_length)
         self._current_pulse_length = initial_pulse_length
+        self._is_lifting = False
 
     def write(self, target_pulse_length, duration, diff_t):
         count = int(duration / diff_t)
@@ -47,6 +48,11 @@ class Servo:
     
     def up(self):
         self.write(610, 3, 0.1)
+        self._is_lifting = True
     
     def down(self):
         self.write(400, 3, 0.1)
+        self._is_lifting = False
+    
+    def is_lifting(self):
+        return self._is_lifting

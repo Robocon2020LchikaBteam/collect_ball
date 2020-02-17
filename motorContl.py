@@ -8,7 +8,6 @@ from servo import Servo
 from gp2y0e import Gp2y0e
 import json
 from sound import SoundPhaseE
-import queue
 
 """
 
@@ -30,16 +29,12 @@ class MotorController:
     DEBUG_CHASE_ALGORITHM = 1
 
     # モータ制御用パラメータ群
-    # ボール保持状態判定閾値
-    THRESHOLD_BALL_DETECT = 0.05
     # ボールとの角度からモータ速度変換時の補正値
     CORRECTION_VALUE_BALL_ANGLE_TO_SPEED = 3
     # ボールとの距離からモータ速度変換時の補正値
     CORRECTION_VALUE_DISTANCE_TO_SPEED = 100
     # 距離センサの値がinfinityの時のモータの値
     SPEED_DISTANCE_INFINITE = 25
-    # ゴールが正面にある時のモータの値
-    SPEED_FRONT_GOAL = 25
     # ボールが正面にある時のモータの値(距離センサを使わない場合のみ使用)
     SPEED_FRONT_BALL = 30
     # どうしようもない時用の値(ゆっくり旋回)
@@ -48,8 +43,10 @@ class MotorController:
     SPEED_STOP = 0, 0
     # 首振りモード時旋回パラメータ
     SPEED_SWING_ROTATE = 80, -80
-    # 設定値->モータ値対応付け用辞書
-    DIC_SETTING_TO_MOTOR_VALUE = {'STOP' : (0, 0)}
+    # 後退用モータ値(主にスタック回避周りで使用する)
+    SPEED_BACK = 30
+    # ボール保持判定用距離[cm]
+    DISTANCE_HAVE_BALL = 15
 
     # 移動アルゴリズム1, 2で使用
     # ボール追跡時の基準スピード
@@ -73,7 +70,7 @@ class MotorController:
         self.is_dribble_started = False
         # モータ制御後処理インスタンス生成
         self.motorControlPostProcessor = MotorControlPostProcessor()
-        self.motorControlPostProcessor.enable_escape_press_wall()
+        self.motorControlPostProcessor.enable_escape_press_wall(speed=MotorController.SPEED_BACK)
         # 距離センサ用インスタンス生成
         self.distanceSensor = Gp2y0e(0x40)
         # モータドライバ制御用インスタンス生成
@@ -248,7 +245,7 @@ class MotorController:
                 distanceSensorValue = self.distanceSensor.read()
                 DEBUG('distanceSensor = ' + str(distanceSensorValue))
                 # ボール消失してる
-                if distanceSensorValue > 15:
+                if distanceSensorValue > MotorController.DISTANCE_HAVE_BALL:
                     INFO('lost ball')
                     self.left_motor.drive(0)
                     self.right_motor.drive(0)
@@ -287,6 +284,10 @@ class MotorController:
             # モーター値後処理(現在は首振り検知処理のみ)
             # motorPowers = self.motorControlPostProcessor.escapeSwing(motorPowers)
             motorPowers = self.motorControlPostProcessor.run(motorPowers, shmem.bodyAngle / 10)
+            # ボール保持中じゃないのに前方近くに何かあったら後退して回避する
+            if self.servo.is_lifting() and self.distanceSensor.read() < MotorController.DISTANCE_HAVE_BALL:
+                INFO('### detect something barrier')
+                motorPowers = (-MotorController.SPEED_BACK, -MotorController.SPEED_BACK)
             # モータ値を正常値にまるめる
             motorPowers = self.roundOffMotorSpeeds(motorPowers)
             # モータ値送信

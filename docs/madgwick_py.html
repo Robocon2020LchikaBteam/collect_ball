@@ -82,9 +82,9 @@
               <div class="local-toc"><ul>
 <li><a class="reference internal" href="#">madgwick_py package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-madgwick_py.madgwickahrs">madgwick_py.madgwickahrs module</a></li>
-<li><a class="reference internal" href="#module-madgwick_py.quaternion">madgwick_py.quaternion module</a></li>
-<li><a class="reference internal" href="#module-madgwick_py">Module contents</a></li>
+<li><a class="reference internal" href="#madgwick-py-madgwickahrs-module">madgwick_py.madgwickahrs module</a></li>
+<li><a class="reference internal" href="#madgwick-py-quaternion-module">madgwick_py.quaternion module</a></li>
+<li><a class="reference internal" href="#module-contents">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -156,129 +156,14 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-madgwick_py.madgwickahrs">
-<span id="madgwick-py-madgwickahrs-module"></span><h2>madgwick_py.madgwickahrs module<a class="headerlink" href="#module-madgwick_py.madgwickahrs" title="Permalink to this headline">¶</a></h2>
-<p>Copyright (c) 2015 Jonas Böer, <a class="reference external" href="mailto:jonas&#46;boeer&#37;&#52;&#48;student&#46;kit&#46;edu">jonas<span>&#46;</span>boeer<span>&#64;</span>student<span>&#46;</span>kit<span>&#46;</span>edu</a></p>
-<p>This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.</p>
-<p>This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.</p>
-<p>You should have received a copy of the GNU Lesser General Public License
-along with this program.  If not, see &lt;<a class="reference external" href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.</p>
-<dl class="class">
-<dt id="madgwick_py.madgwickahrs.MadgwickAHRS">
-<em class="property">class </em><code class="sig-prename descclassname">madgwick_py.madgwickahrs.</code><code class="sig-name descname">MadgwickAHRS</code><span class="sig-paren">(</span><em class="sig-param">sampleperiod=None</em>, <em class="sig-param">quaternion=None</em>, <em class="sig-param">beta=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/madgwick_py/madgwickahrs.html#MadgwickAHRS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#madgwick_py.madgwickahrs.MadgwickAHRS" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="attribute">
-<dt id="madgwick_py.madgwickahrs.MadgwickAHRS.beta">
-<code class="sig-name descname">beta</code><em class="property"> = 1</em><a class="headerlink" href="#madgwick_py.madgwickahrs.MadgwickAHRS.beta" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="madgwick_py.madgwickahrs.MadgwickAHRS.quaternion">
-<code class="sig-name descname">quaternion</code><em class="property"> = &lt;madgwick_py.quaternion.Quaternion object&gt;</em><a class="headerlink" href="#madgwick_py.madgwickahrs.MadgwickAHRS.quaternion" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="madgwick_py.madgwickahrs.MadgwickAHRS.samplePeriod">
-<code class="sig-name descname">samplePeriod</code><em class="property"> = 0.00390625</em><a class="headerlink" href="#madgwick_py.madgwickahrs.MadgwickAHRS.samplePeriod" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="madgwick_py.madgwickahrs.MadgwickAHRS.update">
-<code class="sig-name descname">update</code><span class="sig-paren">(</span><em class="sig-param">gyroscope</em>, <em class="sig-param">accelerometer</em>, <em class="sig-param">magnetometer</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/madgwick_py/madgwickahrs.html#MadgwickAHRS.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#madgwick_py.madgwickahrs.MadgwickAHRS.update" title="Permalink to this definition">¶</a></dt>
-<dd><p>Perform one update step with data from a AHRS sensor array
-:param gyroscope: A three-element array containing the gyroscope data in radians per second.
-:param accelerometer: A three-element array containing the accelerometer data. Can be any unit since a normalized value is used.
-:param magnetometer: A three-element array containing the magnetometer data. Can be any unit since a normalized value is used.
-:return:</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="madgwick_py.madgwickahrs.MadgwickAHRS.update_imu">
-<code class="sig-name descname">update_imu</code><span class="sig-paren">(</span><em class="sig-param">gyroscope</em>, <em class="sig-param">accelerometer</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/madgwick_py/madgwickahrs.html#MadgwickAHRS.update_imu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#madgwick_py.madgwickahrs.MadgwickAHRS.update_imu" title="Permalink to this definition">¶</a></dt>
-<dd><p>Perform one update step with data from a IMU sensor array
-:param gyroscope: A three-element array containing the gyroscope data in radians per second.
-:param accelerometer: A three-element array containing the accelerometer data. Can be any unit since a normalized value is used.</p>
-</dd></dl>
-
-</dd></dl>
-
+<div class="section" id="madgwick-py-madgwickahrs-module">
+<h2>madgwick_py.madgwickahrs module<a class="headerlink" href="#madgwick-py-madgwickahrs-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-madgwick_py.quaternion">
-<span id="madgwick-py-quaternion-module"></span><h2>madgwick_py.quaternion module<a class="headerlink" href="#module-madgwick_py.quaternion" title="Permalink to this headline">¶</a></h2>
-<p>Copyright (c) 2015 Jonas Böer, <a class="reference external" href="mailto:jonas&#46;boeer&#37;&#52;&#48;student&#46;kit&#46;edu">jonas<span>&#46;</span>boeer<span>&#64;</span>student<span>&#46;</span>kit<span>&#46;</span>edu</a></p>
-<p>This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.</p>
-<p>This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.</p>
-<p>You should have received a copy of the GNU Lesser General Public License
-along with this program.  If not, see &lt;<a class="reference external" href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.</p>
-<dl class="class">
-<dt id="madgwick_py.quaternion.Quaternion">
-<em class="property">class </em><code class="sig-prename descclassname">madgwick_py.quaternion.</code><code class="sig-name descname">Quaternion</code><span class="sig-paren">(</span><em class="sig-param">w_or_q</em>, <em class="sig-param">x=None</em>, <em class="sig-param">y=None</em>, <em class="sig-param">z=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/madgwick_py/quaternion.html#Quaternion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#madgwick_py.quaternion.Quaternion" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>A simple class implementing basic quaternion arithmetic.</p>
-<dl class="method">
-<dt id="madgwick_py.quaternion.Quaternion.conj">
-<code class="sig-name descname">conj</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/madgwick_py/quaternion.html#Quaternion.conj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#madgwick_py.quaternion.Quaternion.conj" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the conjugate of the quaternion
-:rtype : Quaternion
-:return: the conjugate of the quaternion</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="madgwick_py.quaternion.Quaternion.from_angle_axis">
-<em class="property">static </em><code class="sig-name descname">from_angle_axis</code><span class="sig-paren">(</span><em class="sig-param">rad</em>, <em class="sig-param">x</em>, <em class="sig-param">y</em>, <em class="sig-param">z</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/madgwick_py/quaternion.html#Quaternion.from_angle_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#madgwick_py.quaternion.Quaternion.from_angle_axis" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="madgwick_py.quaternion.Quaternion.q">
-<em class="property">property </em><code class="sig-name descname">q</code><a class="headerlink" href="#madgwick_py.quaternion.Quaternion.q" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="madgwick_py.quaternion.Quaternion.to_angle_axis">
-<code class="sig-name descname">to_angle_axis</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/madgwick_py/quaternion.html#Quaternion.to_angle_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#madgwick_py.quaternion.Quaternion.to_angle_axis" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the quaternion’s rotation represented by an Euler angle and axis.
-If the quaternion is the identity quaternion (1, 0, 0, 0), a rotation along the x axis with angle 0 is returned.
-:return: rad, x, y, z</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="madgwick_py.quaternion.Quaternion.to_euler123">
-<code class="sig-name descname">to_euler123</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/madgwick_py/quaternion.html#Quaternion.to_euler123"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#madgwick_py.quaternion.Quaternion.to_euler123" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="madgwick_py.quaternion.Quaternion.to_euler_angles">
-<code class="sig-name descname">to_euler_angles</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/madgwick_py/quaternion.html#Quaternion.to_euler_angles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#madgwick_py.quaternion.Quaternion.to_euler_angles" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
+<div class="section" id="madgwick-py-quaternion-module">
+<h2>madgwick_py.quaternion module<a class="headerlink" href="#madgwick-py-quaternion-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-madgwick_py">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-madgwick_py" title="Permalink to this headline">¶</a></h2>
-<p>Copyright (c) 2015 Jonas Böer, <a class="reference external" href="mailto:jonas&#46;boeer&#37;&#52;&#48;student&#46;kit&#46;edu">jonas<span>&#46;</span>boeer<span>&#64;</span>student<span>&#46;</span>kit<span>&#46;</span>edu</a></p>
-<p>This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.</p>
-<p>This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.</p>
-<p>You should have received a copy of the GNU Lesser General Public License
-along with this program.  If not, see &lt;<a class="reference external" href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.</p>
+<div class="section" id="module-contents">
+<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 

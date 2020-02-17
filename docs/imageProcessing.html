@@ -153,12 +153,12 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="attribute">
 <dt id="imageProcessing.ImageProcessing.BLUE_HSV_RANGE_MAX">
-<code class="sig-name descname">BLUE_HSV_RANGE_MAX</code><em class="property"> = [120, 150, 80]</em><a class="headerlink" href="#imageProcessing.ImageProcessing.BLUE_HSV_RANGE_MAX" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">BLUE_HSV_RANGE_MAX</code><em class="property"> = [150, 255, 255]</em><a class="headerlink" href="#imageProcessing.ImageProcessing.BLUE_HSV_RANGE_MAX" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="imageProcessing.ImageProcessing.BLUE_HSV_RANGE_MIN">
-<code class="sig-name descname">BLUE_HSV_RANGE_MIN</code><em class="property"> = [55, 70, 10]</em><a class="headerlink" href="#imageProcessing.ImageProcessing.BLUE_HSV_RANGE_MIN" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">BLUE_HSV_RANGE_MIN</code><em class="property"> = [100, 130, 30]</em><a class="headerlink" href="#imageProcessing.ImageProcessing.BLUE_HSV_RANGE_MIN" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -173,7 +173,7 @@
 
 <dl class="attribute">
 <dt id="imageProcessing.ImageProcessing.DEBUG_IMSHOW">
-<code class="sig-name descname">DEBUG_IMSHOW</code><em class="property"> = 0</em><a class="headerlink" href="#imageProcessing.ImageProcessing.DEBUG_IMSHOW" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">DEBUG_IMSHOW</code><em class="property"> = 1</em><a class="headerlink" href="#imageProcessing.ImageProcessing.DEBUG_IMSHOW" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -187,8 +187,23 @@
 <dd></dd></dl>
 
 <dl class="attribute">
+<dt id="imageProcessing.ImageProcessing.GREEN_HSV_RANGE_MAX">
+<code class="sig-name descname">GREEN_HSV_RANGE_MAX</code><em class="property"> = [100, 255, 255]</em><a class="headerlink" href="#imageProcessing.ImageProcessing.GREEN_HSV_RANGE_MAX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="imageProcessing.ImageProcessing.GREEN_HSV_RANGE_MIN">
+<code class="sig-name descname">GREEN_HSV_RANGE_MIN</code><em class="property"> = [60, 50, 80]</em><a class="headerlink" href="#imageProcessing.ImageProcessing.GREEN_HSV_RANGE_MIN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
 <dt id="imageProcessing.ImageProcessing.IGNORE_AREA_SIZE_BALL">
 <code class="sig-name descname">IGNORE_AREA_SIZE_BALL</code><em class="property"> = 1000</em><a class="headerlink" href="#imageProcessing.ImageProcessing.IGNORE_AREA_SIZE_BALL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="imageProcessing.ImageProcessing.IGNORE_AREA_SIZE_GREEN">
+<code class="sig-name descname">IGNORE_AREA_SIZE_GREEN</code><em class="property"> = 1000</em><a class="headerlink" href="#imageProcessing.ImageProcessing.IGNORE_AREA_SIZE_GREEN" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -208,12 +223,12 @@
 
 <dl class="attribute">
 <dt id="imageProcessing.ImageProcessing.RED_HSV_RANGE_MIN_1">
-<code class="sig-name descname">RED_HSV_RANGE_MIN_1</code><em class="property"> = [0, 130, 30]</em><a class="headerlink" href="#imageProcessing.ImageProcessing.RED_HSV_RANGE_MIN_1" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">RED_HSV_RANGE_MIN_1</code><em class="property"> = [0, 130, 80]</em><a class="headerlink" href="#imageProcessing.ImageProcessing.RED_HSV_RANGE_MIN_1" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="imageProcessing.ImageProcessing.RED_HSV_RANGE_MIN_2">
-<code class="sig-name descname">RED_HSV_RANGE_MIN_2</code><em class="property"> = [160, 130, 30]</em><a class="headerlink" href="#imageProcessing.ImageProcessing.RED_HSV_RANGE_MIN_2" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">RED_HSV_RANGE_MIN_2</code><em class="property"> = [160, 130, 80]</em><a class="headerlink" href="#imageProcessing.ImageProcessing.RED_HSV_RANGE_MIN_2" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -223,7 +238,7 @@
 
 <dl class="attribute">
 <dt id="imageProcessing.ImageProcessing.YELLOW_HSV_RANGE_MIN">
-<code class="sig-name descname">YELLOW_HSV_RANGE_MIN</code><em class="property"> = [15, 127, 30]</em><a class="headerlink" href="#imageProcessing.ImageProcessing.YELLOW_HSV_RANGE_MIN" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">YELLOW_HSV_RANGE_MIN</code><em class="property"> = [20, 127, 140]</em><a class="headerlink" href="#imageProcessing.ImageProcessing.YELLOW_HSV_RANGE_MIN" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -248,7 +263,7 @@
 
 <dl class="method">
 <dt id="imageProcessing.ImageProcessing.imageProcessingFrame">
-<code class="sig-name descname">imageProcessingFrame</code><span class="sig-paren">(</span><em class="sig-param">frame</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/imageProcessing.html#ImageProcessing.imageProcessingFrame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imageProcessing.ImageProcessing.imageProcessingFrame" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">imageProcessingFrame</code><span class="sig-paren">(</span><em class="sig-param">frame</em>, <em class="sig-param">shmem</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/imageProcessing.html#ImageProcessing.imageProcessingFrame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#imageProcessing.ImageProcessing.imageProcessingFrame" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">

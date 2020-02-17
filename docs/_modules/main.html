@@ -150,6 +150,7 @@
 <span class="kn">from</span> <span class="nn">imageProcessing</span> <span class="k">import</span> <span class="n">ImageProcessing</span>
 <span class="kn">from</span> <span class="nn">imu</span> <span class="k">import</span> <span class="n">Imu</span>
 <span class="c1"># from socketServer import Server</span>
+<span class="kn">from</span> <span class="nn">sound</span> <span class="k">import</span> <span class="n">Sound</span>
 <span class="kn">from</span> <span class="nn">debug</span> <span class="k">import</span> <span class="n">ERROR</span><span class="p">,</span> <span class="n">WARN</span><span class="p">,</span> <span class="n">INFO</span><span class="p">,</span> <span class="n">DEBUG</span><span class="p">,</span> <span class="n">TRACE</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
@@ -163,7 +164,8 @@
 <div class="viewcode-block" id="Point"><a class="viewcode-back" href="../main.html#main.Point">[docs]</a><span class="k">class</span> <span class="nc">Point</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
     <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;ballAngle&#39;</span><span class="p">,</span> <span class="n">c_int</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;ballDis&#39;</span><span class="p">,</span> <span class="n">c_int</span><span class="p">),</span>
                 <span class="p">(</span><span class="s1">&#39;stationAngle&#39;</span><span class="p">,</span> <span class="n">c_int</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;stationDis&#39;</span><span class="p">,</span> <span class="n">c_int</span><span class="p">),</span>
-                <span class="p">(</span><span class="s1">&#39;bodyAngle&#39;</span><span class="p">,</span> <span class="n">c_int</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;preparingRestart&#39;</span><span class="p">,</span> <span class="n">c_bool</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;relyStation&#39;</span><span class="p">,</span> <span class="n">c_bool</span><span class="p">)]</span></div>
+                <span class="p">(</span><span class="s1">&#39;bodyAngle&#39;</span><span class="p">,</span> <span class="n">c_int</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;preparingRestart&#39;</span><span class="p">,</span> <span class="n">c_bool</span><span class="p">),</span>
+                <span class="p">(</span><span class="s1">&#39;soundPhase&#39;</span><span class="p">,</span> <span class="n">c_int</span><span class="p">)]</span></div>
 
 
 <div class="viewcode-block" id="info"><a class="viewcode-back" href="../main.html#main.info">[docs]</a><span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="n">title</span><span class="p">):</span>
@@ -179,6 +181,7 @@
     <span class="n">shmem</span> <span class="o">=</span> <span class="n">Value</span><span class="p">(</span><span class="n">Point</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">shmem</span><span class="o">.</span><span class="n">preparingRestart</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">shmem</span><span class="o">.</span><span class="n">relyStation</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">shmem</span><span class="o">.</span><span class="n">soundPhase</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="c1"># モータ制御インスタンスの生成</span>
     <span class="n">motorController</span> <span class="o">=</span> <span class="n">MotorController</span><span class="p">()</span>
     <span class="c1"># 画像処理インスタンスの生成</span>
@@ -189,11 +192,13 @@
     <span class="n">imu</span><span class="o">.</span><span class="n">calibrate</span><span class="p">()</span>
     <span class="c1"># websocketサーバの生成</span>
     <span class="c1"># server = Server(9001)</span>
+    <span class="n">sound</span> <span class="o">=</span> <span class="n">Sound</span><span class="p">()</span>
 
     <span class="n">p_motorContl</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">motorController</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">shmem</span><span class="p">,))</span>
     <span class="n">p_imageProcessing</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">imageProcessing</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">shmem</span><span class="p">,))</span>
     <span class="n">p_imu</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">imu</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">shmem</span><span class="p">,))</span>
     <span class="c1"># p_server = Process(target=server.target, args=())</span>
+    <span class="n">p_sound</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">sound</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">shmem</span><span class="p">,))</span>
     
     <span class="n">p_motorContl</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
     <span class="n">DEBUG</span><span class="p">(</span><span class="s1">&#39;p_motorContl started&#39;</span><span class="p">)</span>
@@ -203,11 +208,14 @@
     <span class="n">DEBUG</span><span class="p">(</span><span class="s1">&#39;p_imu started&#39;</span><span class="p">)</span>
     <span class="c1"># p_server.start()</span>
     <span class="c1"># DEBUG(&#39;p_server started&#39;)</span>
+    <span class="n">p_sound</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="n">DEBUG</span><span class="p">(</span><span class="s1">&#39;p_sound started&#39;</span><span class="p">)</span>
 
     <span class="n">p_motorContl</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
     <span class="n">p_imageProcessing</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
     <span class="n">p_imu</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
     <span class="c1"># p_server.join()</span>
+    <span class="n">p_sound</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
 </pre></div>
 
            </div>

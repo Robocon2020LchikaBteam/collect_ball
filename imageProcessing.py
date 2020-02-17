@@ -17,17 +17,19 @@ class ImageProcessing:
     # 画像出力の有効無効
     ENABLE = 1
     DISABLE = 0
-    DEBUG_IMSHOW = DISABLE
+    DEBUG_IMSHOW = ENABLE
 
     # マスクパラメータはあんまり厳しくしすぎると、本番で認識しないという事態になりそうで怖い
-    RED_HSV_RANGE_MIN_1 = [0, 130, 30]
+    RED_HSV_RANGE_MIN_1 = [0, 130, 80]
     RED_HSV_RANGE_MAX_1 = [2, 255, 255]
-    RED_HSV_RANGE_MIN_2 = [160, 130, 30]
+    RED_HSV_RANGE_MIN_2 = [160, 130, 80]
     RED_HSV_RANGE_MAX_2 = [179, 255, 255]
-    BLUE_HSV_RANGE_MIN = [55, 70, 10]
-    BLUE_HSV_RANGE_MAX = [120, 150, 80]
-    YELLOW_HSV_RANGE_MIN = [15, 127, 30]
+    BLUE_HSV_RANGE_MIN = [100, 130, 30]
+    BLUE_HSV_RANGE_MAX = [150, 255, 255]
+    YELLOW_HSV_RANGE_MIN = [20, 127, 140]
     YELLOW_HSV_RANGE_MAX = [30, 255, 255]
+    GREEN_HSV_RANGE_MIN = [60, 50, 80]
+    GREEN_HSV_RANGE_MAX = [100, 255, 255]
 
     CAMERA_CENTER_CX = 240
     CAMERA_CENTER_CY = 240
@@ -35,6 +37,7 @@ class ImageProcessing:
     # 色認識において、これ以下の面積の結果は無視する
     IGNORE_AREA_SIZE_BALL = 1000
     IGNORE_AREA_SIZE_YELLOW = 1000
+    IGNORE_AREA_SIZE_GREEN = 1000
 
     # @brief コンスタラクタ
     # @detail 初期化処理を行う
@@ -66,13 +69,17 @@ class ImageProcessing:
             hsv_range_min = self.BLUE_HSV_RANGE_MIN
             hsv_range_max = self.BLUE_HSV_RANGE_MAX
             mask = cv2.inRange(hsv_img, np.array(hsv_range_min), np.array(hsv_range_max))
+        elif color_name == 'GREEN':
+            hsv_range_min = self.GREEN_HSV_RANGE_MIN
+            hsv_range_max = self.GREEN_HSV_RANGE_MAX
+            mask = cv2.inRange(hsv_img, np.array(hsv_range_min), np.array(hsv_range_max))
             
         if self.DEBUG_IMSHOW == self.ENABLE:
             cv2.imshow('Mask' + color_name, cv2.flip(mask, -1))
 
         _, contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-        if color_name == 'RED' or color_name == 'BLUE':
+        if color_name == 'RED' or color_name == 'BLUE' or color_name == 'YELLOW':
             convex_hull_list = []
             for contour in contours:
                 approx = cv2.convexHull(contour)
@@ -92,7 +99,7 @@ class ImageProcessing:
                 return -1, -1, 0.0, []
             else:
                 return -1, -1, 0.0, []
-        elif color_name == 'YELLOW':
+        elif color_name == 'GREEN':
             convex_hull_list = []
             for contour in contours:
                 approx = cv2.approxPolyDP(contour, 0.01 * cv2.arcLength(contour, True), True)
@@ -157,9 +164,15 @@ class ImageProcessing:
         if blue_cx > -1:
             self.draw_marker(frame, blue_cx, blue_cy, (30, 30, 255))
         
+        # 緑色領域の検知
+        green_cx, green_cy, green_area_size, green_convex = self.colorDetect2(hsv_img, 'GREEN')
+        if green_cx > -1:
+            self.draw_marker(frame, green_cx, green_cy, (30, 255, 30))
+        
         INFO('RedSize :' + str(red_area_size).rjust(8))
         INFO('YellowSize :' + str(yellow_area_size).rjust(8))
         INFO('BlueSize :' + str(blue_area_size).rjust(8))
+        INFO('GreenSize :' + str(green_area_size).rjust(8))
 
         # 認識できた部分の面積が小さい場合は結果を無視し、distanceに不正な値を入れる
         if red_area_size > blue_area_size and red_area_size > self.IGNORE_AREA_SIZE_BALL:
@@ -170,11 +183,15 @@ class ImageProcessing:
             DEBUG('use BLUE area')
             shmem.soundPhase = SoundPhaseE.DETECT_BLUE_BALL
             ball_angle, ball_distance = self.calcBallDirection(blue_cx, blue_cy)
+        elif yellow_area_size > self.IGNORE_AREA_SIZE_BALL:
+            DEBUG('use YELLOW area')
+            shmem.soundPhase = SoundPhaseE.DETECT_YELLOW_BALL
+            ball_angle, ball_distance = self.calcBallDirection(yellow_cx, yellow_cy)
         else:
             ball_angle = 0
             ball_distance = -1
-        if yellow_area_size > self.IGNORE_AREA_SIZE_YELLOW:
-            station_angle, station_distance = self.calcBallDirection(yellow_cx, yellow_cy)
+        if green_area_size > self.IGNORE_AREA_SIZE_GREEN:
+            station_angle, station_distance = self.calcBallDirection(green_cx, green_cy)
         else:
             station_angle = 0
             station_distance = -1
@@ -207,6 +224,7 @@ class ImageProcessing:
                         cv2.moveWindow('Frame', 0, 30)
                         cv2.moveWindow('MaskRED', 482, 30)
                         cv2.moveWindow('MaskYELLOW', 964, 30)
+                        cv2.moveWindow('MaskGREEN', 1446, 30)
               
                     # 共有メモリに書き込む
                     shmem.ballAngle = int(ball_angle * 90 / 240)

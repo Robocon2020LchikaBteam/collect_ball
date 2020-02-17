@@ -26,20 +26,15 @@ class MotionStateE(Enum):
 # モータ制御用クラス
 class MotorController:
     # 移動アルゴリズム切り替え用変数
-    DEBUG_SHOOT_ALGORITHM = 2
     DEBUG_CHASE_ALGORITHM = 1
 
     # モータ制御用パラメータ群
-    # ボール保持状態判定閾値
-    THRESHOLD_BALL_DETECT = 0.05
     # ボールとの角度からモータ速度変換時の補正値
     CORRECTION_VALUE_BALL_ANGLE_TO_SPEED = 3
     # ボールとの距離からモータ速度変換時の補正値
     CORRECTION_VALUE_DISTANCE_TO_SPEED = 100
     # 距離センサの値がinfinityの時のモータの値
     SPEED_DISTANCE_INFINITE = 25
-    # ゴールが正面にある時のモータの値
-    SPEED_FRONT_GOAL = 25
     # ボールが正面にある時のモータの値(距離センサを使わない場合のみ使用)
     SPEED_FRONT_BALL = 30
     # どうしようもない時用の値(ゆっくり旋回)
@@ -47,19 +42,27 @@ class MotorController:
     # 停止
     SPEED_STOP = 0, 0
     # 首振りモード時旋回パラメータ
-    SPEED_SWING_ROTATE = 80, -80
-    # 設定値->モータ値対応付け用辞書
-    DIC_SETTING_TO_MOTOR_VALUE = {'STOP' : (0, 0)}
+    SPEED_SWING_ROTATE = 100, -100
+    # 後退用モータ値(主にスタック回避周りで使用する)
+    SPEED_BACK = 30
+    # ボール保持判定用距離[cm]
+    DISTANCE_HAVE_BALL = 15
+    # スタック判定用距離[cm]
+    DISTANCE_STACK = 6
 
     # 移動アルゴリズム1, 2で使用
     # ボール追跡時の基準スピード
-    SPEED_CHASE = 40
+    SPEED_CHASE = 60
     # ボール追跡時の比例項の係数
     K_CHASE_ANGLE = 0.6  # SPEED_CHASE / 180にするとよい？
+    # ステーション指示に従う際の基準スピード
+    SPEED_STATION_GUIDE = 10
+    # ステーション指示に従う際の比例項の係数
+    K_STATION_GUIDE_ANGLE = 0.15  # SPEED_CHASE / 180にするとよい？
     # 再スタート準備時の基準スピード
     SPEED_TURN = 20
     # 再スタート準備時の比例項の係数
-    K_TURN_ANGLE = 1
+    K_TURN_ANGLE = 1.5
 
     # コンストラクタ
     def __init__(self):
@@ -69,6 +72,7 @@ class MotorController:
         self.is_dribble_started = False
         # モータ制御後処理インスタンス生成
         self.motorControlPostProcessor = MotorControlPostProcessor()
+        self.motorControlPostProcessor.enable_escape_press_wall(speed=MotorController.SPEED_BACK)
         # 距離センサ用インスタンス生成
         self.distanceSensor = Gp2y0e(0x40)
         # モータドライバ制御用インスタンス生成
@@ -148,7 +152,7 @@ class MotorController:
                 MotorController.SPEED_CHASE + MotorController.K_CHASE_ANGLE * ballAngle
 
     # ボールとの角度のみを使ってモータの値を計算する
-    def calcMotorPowersByBallAngle(self, ballAngle):
+    def calcMotorPowersByBallAngle(self, ballAngle, speed, k):
         if self.DEBUG_CHASE_ALGORITHM == 0:
             # ボールが正面にある場合
             if ballAngle == 0:
@@ -176,11 +180,11 @@ class MotorController:
         if motion_status == MotionStateE.CHASE_BALL:
             TRACE('motion_status = CHASE_BALL')
             if shmem.ballDis != -1:
-                return self.calcMotorPowersByBallAngle(shmem.ballAngle)
+                return self.calcMotorPowersByBallAngle(shmem.ballAngle, MotorController.SPEED_CHASE, MotorController.K_CHASE_ANGLE)
             TRACE('shmem.ballDis is invalid value')
             if self.chaseBallMode.now() == ChaseMode.NORMAL:
                 TRACE('chaseBallMode = NORMAL')
-                return self.calcMotorPowersByBallAngle(shmem.bodyAngle / 10)
+                return self.calcMotorPowersByBallAngle(shmem.bodyAngle / 10, MotorController.SPEED_CHASE, MotorController.K_CHASE_ANGLE)
             # ボールが視界になくて、首振りモードの時はボールを見つけるためにとりあえず旋回する
             DEBUG('chaseBallMode = SWING')
             return MotorController.SPEED_SWING_ROTATE
@@ -188,7 +192,7 @@ class MotorController:
             TRACE('motion_status = GO_TO_STATION')
             if shmem.stationDis != -1:
                 shmem.soundPhase = SoundPhaseE.DETECT_STATION
-                return self.calcMotorPowersByBallAngle(shmem.stationAngle)
+                return self.calcMotorPowersByBallAngle(shmem.stationAngle, MotorController.SPEED_CHASE, MotorController.K_CHASE_ANGLE)
             TRACE('shmem.ballDis is invalid value')
             # センターカメラから指令が来ていたらguide_info.jsonに有効な値が入っている
             with open('./guide_info.json', mode='r') as f:
@@ -198,11 +202,17 @@ class MotorController:
                     if guide_degree != 360:
                         shmem.soundPhase = SoundPhaseE.RECV_CAMERA_INFO
                         DEBUG('guide_degree = ' + str(guide_degree))
-                        return self.calcMotorPowersByBallAngle(-guide_degree)
+                        # センターから停止命令が来ていたらモータ止める
+                        if guide_info_json.get('wait', False):
+                            DEBUG('recieved stop order!')
+                            return 0, 0
+                        return self.calcMotorPowersByBallAngle(-guide_degree, MotorController.SPEED_STATION_GUIDE,
+                                                               MotorController.K_STATION_GUIDE_ANGLE)
                 except json.JSONDecodeError:
                     ERROR('faild to load guide_info.json')
             body_angle = shmem.bodyAngle
-            return self.calcMotorPowersByBallAngle(body_angle / 10 - (body_angle / abs(body_angle) * 180))
+            return self.calcMotorPowersByBallAngle(body_angle / 10 - (body_angle / abs(body_angle) * 180), MotorController.SPEED_CHASE,
+                                                   MotorController.K_CHASE_ANGLE)
         # PREPARE_RETART
         TRACE('motion_status = PREPARE_RESTART')
         return (0, 0)
@@ -214,7 +224,7 @@ class MotorController:
         time.sleep(1)
         while True:
             angle = shmem.bodyAngle / 10
-            if abs(angle) < 10:
+            if abs(angle) < 30:
                 break
             self.left_motor.drive(MotorController.SPEED_TURN + MotorController.K_TURN_ANGLE * angle)
             self.right_motor.drive(-MotorController.SPEED_TURN - MotorController.K_TURN_ANGLE * angle)
@@ -226,7 +236,7 @@ class MotorController:
         while 1:
             if self.motion_status == MotionStateE.CHASE_BALL:
                 # ボール捕獲に移る
-                if 100 < shmem.ballDis < 140:
+                if 100 < shmem.ballDis < 160:
                     INFO('capture ball')
                     self.left_motor.drive(0)
                     self.right_motor.drive(0)
@@ -237,14 +247,19 @@ class MotorController:
                 distanceSensorValue = self.distanceSensor.read()
                 DEBUG('distanceSensor = ' + str(distanceSensorValue))
                 # ボール消失してる
-                if distanceSensorValue > 15:
+                if distanceSensorValue > MotorController.DISTANCE_HAVE_BALL:
                     INFO('lost ball')
                     self.left_motor.drive(0)
                     self.right_motor.drive(0)
                     self.servo.up()
+                    # ステーションが見えている場合はステーションにボールを渡せたと判断して再スタートする
+                    if shmem.stationDis != -1:
+                        INFO('lost ball -> in station')
+                        self.chaseBallMode.set_mode(ChaseMode.NORMAL)
+                        self.motion_status = MotionStateE.PREPARE_RESTART
                     self.motion_status = MotionStateE.CHASE_BALL
                 # TODO: ステーション到着後の動き
-                if 300 < shmem.stationDis < 390:
+                if 200 < shmem.stationDis < 310:
                     INFO('reached station')
                     self.left_motor.drive(0)
                     self.right_motor.drive(0)
@@ -270,15 +285,21 @@ class MotorController:
             motorPowers = self.calcMotorPowers(shmem, self.motion_status)
             # モーター値後処理(現在は首振り検知処理のみ)
             # motorPowers = self.motorControlPostProcessor.escapeSwing(motorPowers)
+            motorPowers = self.motorControlPostProcessor.run(motorPowers, shmem.bodyAngle / 10)
+            # ボール保持中じゃないのに前方近くに何かあったら後退して回避する
+            if self.servo.is_lifting() and self.distanceSensor.read() < MotorController.DISTANCE_STACK:
+                INFO('### detect something barrier')
+                motorPowers = (-MotorController.SPEED_BACK, -MotorController.SPEED_BACK)
             # モータ値を正常値にまるめる
             motorPowers = self.roundOffMotorSpeeds(motorPowers)
             # モータ値送信
             self.left_motor.drive(motorPowers[0])
             self.right_motor.drive(motorPowers[1])
             # とりあえず一定時間間隔で動かす
-            INFO('motor l=' + str(motorPowers[0]).rjust(4) + ', r=' + str(motorPowers[1]).rjust(4),
-                 'red=' + str(shmem.ballAngle).rjust(4) + ',' + str(shmem.ballDis).rjust(4),
-                 'yellow=' + str(shmem.stationAngle).rjust(4) + ',' + str(shmem.stationDis).rjust(4),
+            INFO('motor r=' + str(motorPowers[0]).rjust(4) + ', l=' + str(motorPowers[1]).rjust(4),
+                 ',ball angle, distance=' + str(shmem.ballAngle).rjust(4) + ',' + str(shmem.ballDis).rjust(4),
+                 ',station angle, distance=' + str(shmem.stationAngle).rjust(4) + ',' + str(shmem.stationDis).rjust(4),
+                 ',body angle=' + str(shmem.bodyAngle / 10).rjust(4),
                  )
             time.sleep(0.1)
     
@@ -314,7 +335,59 @@ class MotorControlPostProcessor:
         self.is_escaping_swing = False
         # 首振り回避開始時刻
         self.escape_swing_start_time = time.time()
+        self._is_escape_press_wall = False
         TRACE('MotorControlPostProcessor generated')
+    
+    def run(self, motorPowers, bodyAngle):
+        if self._is_escape_press_wall:
+            motorPowers = self.__escape_press_wall(motorPowers, bodyAngle)
+        self._pw_pre_power = motorPowers
+        self._pw_pre_body_angle = bodyAngle
+        return motorPowers
+    
+    # TODO: スタック回避処理を別クラスにする
+    def enable_escape_press_wall(self, error_count=10, diff_angle=3, back_time=2, speed=30):
+        if self._is_escape_press_wall:
+            return False
+        self._pw_error_count_limit = error_count
+        self._pw_error_count_now = 0
+        self._pw_diff_angle = diff_angle
+        self._pw_back_time = back_time
+        self._pw_speed = speed
+        self._is_escape_press_wall = True
+        self._pw_pre_power = (0, 0)
+        self._pw_pre_body_angle = 9999
+        self._pw_start_back_time = time.time()
+        self._pw_enable_force_back = False
+        return True
+    
+    def disable_escape_press_wall(self):
+        self._is_escape_press_wall = False
+    
+    def __escape_press_wall(self, motorPowers, bodyAngle):
+        # すでにバック中の場合
+        if self._pw_enable_force_back:
+            if (time.time() - self._pw_start_back_time) > self._pw_back_time:
+                DEBUG('### END back for escape press wall')
+                self._pw_enable_force_back = False
+                # 壁押し付け状態判定用変数初期化
+                self._pw_error_count_now = 0
+            TRACE('### CONTINUE back for escape press wall')
+            return -self._pw_speed, -self._pw_speed
+        # 旋回しようとしているかどうか
+        # TODO: このパラメータも上位側で指定可能にする
+        if abs(self._pw_pre_power[0] - self._pw_pre_power[1]) > 50 and abs(self._pw_pre_body_angle - bodyAngle) < self._pw_diff_angle:
+            DEBUG('### pressing wall count +1')
+            self._pw_error_count_now += 1
+        else:
+            self._pw_error_count_now = 0
+        if self._pw_error_count_now >= self._pw_error_count_limit:
+            INFO('### detect pressing wall count')
+            self._pw_enable_force_back = True
+            self._pw_start_back_time = time.time()
+            # 別にこの時はバックしなくてもいいかもしれないが一応
+            return -self._pw_speed, -self._pw_speed
+        return motorPowers
 
     def escapeSwing(self, motorPowers):
         # 首振り回避する必要がある場合
@@ -393,11 +466,11 @@ class ChaseMode:
     NORMAL = 0
     SWING = 1
     
-    def __init__(self, max_normal_time_sec=3, max_swing_time_sec=2):
+    def __init__(self, max_normal_time_sec=10, max_swing_time_sec=6):
         self._mode = ChaseMode.NORMAL
         self._now_mode_start_time = time.time()
-        self._MAX_NORMAL_TIME_SEC = 5
-        self._MAX_SWING_TIME_SEC = 3
+        self._MAX_NORMAL_TIME_SEC = max_normal_time_sec
+        self._MAX_SWING_TIME_SEC = max_swing_time_sec
     
     def now(self):
         self.__update()

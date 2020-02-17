@@ -47,6 +47,8 @@ class MotorController:
     SPEED_BACK = 30
     # ボール保持判定用距離[cm]
     DISTANCE_HAVE_BALL = 15
+    # スタック判定用距離[cm]
+    DISTANCE_STACK = 5
 
     # 移動アルゴリズム1, 2で使用
     # ボール追跡時の基準スピード
@@ -285,7 +287,7 @@ class MotorController:
             # motorPowers = self.motorControlPostProcessor.escapeSwing(motorPowers)
             motorPowers = self.motorControlPostProcessor.run(motorPowers, shmem.bodyAngle / 10)
             # ボール保持中じゃないのに前方近くに何かあったら後退して回避する
-            if self.servo.is_lifting() and self.distanceSensor.read() < MotorController.DISTANCE_HAVE_BALL:
+            if self.servo.is_lifting() and self.distanceSensor.read() < MotorController.DISTANCE_STACK:
                 INFO('### detect something barrier')
                 motorPowers = (-MotorController.SPEED_BACK, -MotorController.SPEED_BACK)
             # モータ値を正常値にまるめる

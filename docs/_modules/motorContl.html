@@ -151,7 +151,6 @@
 <span class="kn">from</span> <span class="nn">gp2y0e</span> <span class="k">import</span> <span class="n">Gp2y0e</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">from</span> <span class="nn">sound</span> <span class="k">import</span> <span class="n">SoundPhaseE</span>
-<span class="kn">import</span> <span class="nn">queue</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -173,16 +172,12 @@
     <span class="n">DEBUG_CHASE_ALGORITHM</span> <span class="o">=</span> <span class="mi">1</span>
 
     <span class="c1"># モータ制御用パラメータ群</span>
-    <span class="c1"># ボール保持状態判定閾値</span>
-    <span class="n">THRESHOLD_BALL_DETECT</span> <span class="o">=</span> <span class="mf">0.05</span>
     <span class="c1"># ボールとの角度からモータ速度変換時の補正値</span>
     <span class="n">CORRECTION_VALUE_BALL_ANGLE_TO_SPEED</span> <span class="o">=</span> <span class="mi">3</span>
     <span class="c1"># ボールとの距離からモータ速度変換時の補正値</span>
     <span class="n">CORRECTION_VALUE_DISTANCE_TO_SPEED</span> <span class="o">=</span> <span class="mi">100</span>
     <span class="c1"># 距離センサの値がinfinityの時のモータの値</span>
     <span class="n">SPEED_DISTANCE_INFINITE</span> <span class="o">=</span> <span class="mi">25</span>
-    <span class="c1"># ゴールが正面にある時のモータの値</span>
-    <span class="n">SPEED_FRONT_GOAL</span> <span class="o">=</span> <span class="mi">25</span>
     <span class="c1"># ボールが正面にある時のモータの値(距離センサを使わない場合のみ使用)</span>
     <span class="n">SPEED_FRONT_BALL</span> <span class="o">=</span> <span class="mi">30</span>
     <span class="c1"># どうしようもない時用の値(ゆっくり旋回)</span>
@@ -190,13 +185,17 @@
     <span class="c1"># 停止</span>
     <span class="n">SPEED_STOP</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
     <span class="c1"># 首振りモード時旋回パラメータ</span>
-    <span class="n">SPEED_SWING_ROTATE</span> <span class="o">=</span> <span class="mi">80</span><span class="p">,</span> <span class="o">-</span><span class="mi">80</span>
-    <span class="c1"># 設定値-&gt;モータ値対応付け用辞書</span>
-    <span class="n">DIC_SETTING_TO_MOTOR_VALUE</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;STOP&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)}</span>
+    <span class="n">SPEED_SWING_ROTATE</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="o">-</span><span class="mi">100</span>
+    <span class="c1"># 後退用モータ値(主にスタック回避周りで使用する)</span>
+    <span class="n">SPEED_BACK</span> <span class="o">=</span> <span class="mi">30</span>
+    <span class="c1"># ボール保持判定用距離[cm]</span>
+    <span class="n">DISTANCE_HAVE_BALL</span> <span class="o">=</span> <span class="mi">15</span>
+    <span class="c1"># スタック判定用距離[cm]</span>
+    <span class="n">DISTANCE_STACK</span> <span class="o">=</span> <span class="mi">6</span>
 
     <span class="c1"># 移動アルゴリズム1, 2で使用</span>
     <span class="c1"># ボール追跡時の基準スピード</span>
-    <span class="n">SPEED_CHASE</span> <span class="o">=</span> <span class="mi">40</span>
+    <span class="n">SPEED_CHASE</span> <span class="o">=</span> <span class="mi">60</span>
     <span class="c1"># ボール追跡時の比例項の係数</span>
     <span class="n">K_CHASE_ANGLE</span> <span class="o">=</span> <span class="mf">0.6</span>  <span class="c1"># SPEED_CHASE / 180にするとよい？</span>
     <span class="c1"># ステーション指示に従う際の基準スピード</span>
@@ -216,7 +215,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">is_dribble_started</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="c1"># モータ制御後処理インスタンス生成</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">motorControlPostProcessor</span> <span class="o">=</span> <span class="n">MotorControlPostProcessor</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">motorControlPostProcessor</span><span class="o">.</span><span class="n">enable_escape_press_wall</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">motorControlPostProcessor</span><span class="o">.</span><span class="n">enable_escape_press_wall</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="n">MotorController</span><span class="o">.</span><span class="n">SPEED_BACK</span><span class="p">)</span>
         <span class="c1"># 距離センサ用インスタンス生成</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">distanceSensor</span> <span class="o">=</span> <span class="n">Gp2y0e</span><span class="p">(</span><span class="mh">0x40</span><span class="p">)</span>
         <span class="c1"># モータドライバ制御用インスタンス生成</span>
@@ -380,7 +379,7 @@
         <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">motion_status</span> <span class="o">==</span> <span class="n">MotionStateE</span><span class="o">.</span><span class="n">CHASE_BALL</span><span class="p">:</span>
                 <span class="c1"># ボール捕獲に移る</span>
-                <span class="k">if</span> <span class="mi">100</span> <span class="o">&lt;</span> <span class="n">shmem</span><span class="o">.</span><span class="n">ballDis</span> <span class="o">&lt;</span> <span class="mi">140</span><span class="p">:</span>
+                <span class="k">if</span> <span class="mi">100</span> <span class="o">&lt;</span> <span class="n">shmem</span><span class="o">.</span><span class="n">ballDis</span> <span class="o">&lt;</span> <span class="mi">160</span><span class="p">:</span>
                     <span class="n">INFO</span><span class="p">(</span><span class="s1">&#39;capture ball&#39;</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">left_motor</span><span class="o">.</span><span class="n">drive</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">right_motor</span><span class="o">.</span><span class="n">drive</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -391,7 +390,7 @@
                 <span class="n">distanceSensorValue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distanceSensor</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
                 <span class="n">DEBUG</span><span class="p">(</span><span class="s1">&#39;distanceSensor = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">distanceSensorValue</span><span class="p">))</span>
                 <span class="c1"># ボール消失してる</span>
-                <span class="k">if</span> <span class="n">distanceSensorValue</span> <span class="o">&gt;</span> <span class="mi">15</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">distanceSensorValue</span> <span class="o">&gt;</span> <span class="n">MotorController</span><span class="o">.</span><span class="n">DISTANCE_HAVE_BALL</span><span class="p">:</span>
                     <span class="n">INFO</span><span class="p">(</span><span class="s1">&#39;lost ball&#39;</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">left_motor</span><span class="o">.</span><span class="n">drive</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">right_motor</span><span class="o">.</span><span class="n">drive</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -430,6 +429,10 @@
             <span class="c1"># モーター値後処理(現在は首振り検知処理のみ)</span>
             <span class="c1"># motorPowers = self.motorControlPostProcessor.escapeSwing(motorPowers)</span>
             <span class="n">motorPowers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">motorControlPostProcessor</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">motorPowers</span><span class="p">,</span> <span class="n">shmem</span><span class="o">.</span><span class="n">bodyAngle</span> <span class="o">/</span> <span class="mi">10</span><span class="p">)</span>
+            <span class="c1"># ボール保持中じゃないのに前方近くに何かあったら後退して回避する</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">servo</span><span class="o">.</span><span class="n">is_lifting</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">distanceSensor</span><span class="o">.</span><span class="n">read</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">MotorController</span><span class="o">.</span><span class="n">DISTANCE_STACK</span><span class="p">:</span>
+                <span class="n">INFO</span><span class="p">(</span><span class="s1">&#39;### detect something barrier&#39;</span><span class="p">)</span>
+                <span class="n">motorPowers</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">MotorController</span><span class="o">.</span><span class="n">SPEED_BACK</span><span class="p">,</span> <span class="o">-</span><span class="n">MotorController</span><span class="o">.</span><span class="n">SPEED_BACK</span><span class="p">)</span>
             <span class="c1"># モータ値を正常値にまるめる</span>
             <span class="n">motorPowers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">roundOffMotorSpeeds</span><span class="p">(</span><span class="n">motorPowers</span><span class="p">)</span>
             <span class="c1"># モータ値送信</span>
@@ -486,7 +489,7 @@
         <span class="k">return</span> <span class="n">motorPowers</span></div>
     
     <span class="c1"># TODO: スタック回避処理を別クラスにする</span>
-<div class="viewcode-block" id="MotorControlPostProcessor.enable_escape_press_wall"><a class="viewcode-back" href="../motorContl.html#motorContl.MotorControlPostProcessor.enable_escape_press_wall">[docs]</a>    <span class="k">def</span> <span class="nf">enable_escape_press_wall</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error_count</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">diff_angle</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">back_time</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">speed</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
+<div class="viewcode-block" id="MotorControlPostProcessor.enable_escape_press_wall"><a class="viewcode-back" href="../motorContl.html#motorContl.MotorControlPostProcessor.enable_escape_press_wall">[docs]</a>    <span class="k">def</span> <span class="nf">enable_escape_press_wall</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error_count</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">diff_angle</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">back_time</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">speed</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_escape_press_wall</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pw_error_count_limit</span> <span class="o">=</span> <span class="n">error_count</span>
@@ -516,10 +519,11 @@
             <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">_pw_speed</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">_pw_speed</span>
         <span class="c1"># 旋回しようとしているかどうか</span>
         <span class="c1"># TODO: このパラメータも上位側で指定可能にする</span>
-        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pw_pre_power</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pw_pre_power</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pw_pre_body_angle</span> <span class="o">-</span> <span class="n">bodyAngle</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pw_diff_angle</span><span class="p">:</span>
-                <span class="n">DEBUG</span><span class="p">(</span><span class="s1">&#39;### pressing wall count +1&#39;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_pw_error_count_now</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pw_pre_power</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pw_pre_power</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">50</span> <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pw_pre_body_angle</span> <span class="o">-</span> <span class="n">bodyAngle</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pw_diff_angle</span><span class="p">:</span>
+            <span class="n">DEBUG</span><span class="p">(</span><span class="s1">&#39;### pressing wall count +1&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pw_error_count_now</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pw_error_count_now</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pw_error_count_now</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pw_error_count_limit</span><span class="p">:</span>
             <span class="n">INFO</span><span class="p">(</span><span class="s1">&#39;### detect pressing wall count&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_pw_enable_force_back</span> <span class="o">=</span> <span class="kc">True</span>
@@ -605,11 +609,11 @@
     <span class="n">NORMAL</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">SWING</span> <span class="o">=</span> <span class="mi">1</span>
     
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_normal_time_sec</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">max_swing_time_sec</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_normal_time_sec</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_swing_time_sec</span><span class="o">=</span><span class="mi">6</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span> <span class="o">=</span> <span class="n">ChaseMode</span><span class="o">.</span><span class="n">NORMAL</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_now_mode_start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_MAX_NORMAL_TIME_SEC</span> <span class="o">=</span> <span class="mi">5</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_MAX_SWING_TIME_SEC</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_MAX_NORMAL_TIME_SEC</span> <span class="o">=</span> <span class="n">max_normal_time_sec</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_MAX_SWING_TIME_SEC</span> <span class="o">=</span> <span class="n">max_swing_time_sec</span>
     
 <div class="viewcode-block" id="ChaseMode.now"><a class="viewcode-back" href="../motorContl.html#motorContl.ChaseMode.now">[docs]</a>    <span class="k">def</span> <span class="nf">now</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__update</span><span class="p">()</span>

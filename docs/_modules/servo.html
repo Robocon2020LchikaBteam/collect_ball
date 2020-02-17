@@ -170,7 +170,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">initial_pulse_length</span><span class="o">=</span><span class="mi">400</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">initial_pulse_length</span><span class="o">=</span><span class="mi">390</span><span class="p">):</span>
         <span class="n">TRACE</span><span class="p">(</span><span class="s1">&#39;Servo generated: address = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">address</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_address</span> <span class="o">=</span> <span class="n">address</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pwm</span> <span class="o">=</span> <span class="n">Adafruit_PCA9685</span><span class="o">.</span><span class="n">PCA9685</span><span class="p">(</span><span class="n">address</span><span class="o">=</span><span class="n">address</span><span class="p">)</span>
@@ -194,7 +194,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_lifting</span> <span class="o">=</span> <span class="kc">True</span></div>
     
 <div class="viewcode-block" id="Servo.down"><a class="viewcode-back" href="../servo.html#servo.Servo.down">[docs]</a>    <span class="k">def</span> <span class="nf">down</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">390</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_lifting</span> <span class="o">=</span> <span class="kc">False</span></div>
     
 <div class="viewcode-block" id="Servo.is_lifting"><a class="viewcode-back" href="../servo.html#servo.Servo.is_lifting">[docs]</a>    <span class="k">def</span> <span class="nf">is_lifting</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

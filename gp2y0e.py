@@ -36,7 +36,10 @@ class Gp2y0e:
             float: distance value [cm]
         
         """
-        data = self._bus.read_i2c_block_data(self._address, 0x5E, 2)
+        try:
+            data = self._bus.read_i2c_block_data(self._address, 0x5E, 2)
+        except:
+            return 100
         distance = (data[0] << 4) | data[1]
         distance = distance / 64
         DEBUG('distance = ' + str(distance) + ' [cm]')

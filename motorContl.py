@@ -42,17 +42,17 @@ class MotorController:
     # 停止
     SPEED_STOP = 0, 0
     # 首振りモード時旋回パラメータ
-    SPEED_SWING_ROTATE = 80, -80
+    SPEED_SWING_ROTATE = 100, -100
     # 後退用モータ値(主にスタック回避周りで使用する)
     SPEED_BACK = 30
     # ボール保持判定用距離[cm]
     DISTANCE_HAVE_BALL = 15
     # スタック判定用距離[cm]
-    DISTANCE_STACK = 5
+    DISTANCE_STACK = 6
 
     # 移動アルゴリズム1, 2で使用
     # ボール追跡時の基準スピード
-    SPEED_CHASE = 40
+    SPEED_CHASE = 60
     # ボール追跡時の比例項の係数
     K_CHASE_ANGLE = 0.6  # SPEED_CHASE / 180にするとよい？
     # ステーション指示に従う際の基準スピード
@@ -236,7 +236,7 @@ class MotorController:
         while 1:
             if self.motion_status == MotionStateE.CHASE_BALL:
                 # ボール捕獲に移る
-                if 100 < shmem.ballDis < 140:
+                if 100 < shmem.ballDis < 160:
                     INFO('capture ball')
                     self.left_motor.drive(0)
                     self.right_motor.drive(0)
@@ -346,7 +346,7 @@ class MotorControlPostProcessor:
         return motorPowers
     
     # TODO: スタック回避処理を別クラスにする
-    def enable_escape_press_wall(self, error_count=7, diff_angle=5, back_time=2, speed=30):
+    def enable_escape_press_wall(self, error_count=10, diff_angle=3, back_time=2, speed=30):
         if self._is_escape_press_wall:
             return False
         self._pw_error_count_limit = error_count
@@ -376,10 +376,11 @@ class MotorControlPostProcessor:
             return -self._pw_speed, -self._pw_speed
         # 旋回しようとしているかどうか
         # TODO: このパラメータも上位側で指定可能にする
-        if abs(self._pw_pre_power[0] - self._pw_pre_power[1]) > 100:
-            if abs(self._pw_pre_body_angle - bodyAngle) < self._pw_diff_angle:
-                DEBUG('### pressing wall count +1')
-                self._pw_error_count_now += 1
+        if abs(self._pw_pre_power[0] - self._pw_pre_power[1]) > 50 and abs(self._pw_pre_body_angle - bodyAngle) < self._pw_diff_angle:
+            DEBUG('### pressing wall count +1')
+            self._pw_error_count_now += 1
+        else:
+            self._pw_error_count_now = 0
         if self._pw_error_count_now >= self._pw_error_count_limit:
             INFO('### detect pressing wall count')
             self._pw_enable_force_back = True
@@ -465,11 +466,11 @@ class ChaseMode:
     NORMAL = 0
     SWING = 1
     
-    def __init__(self, max_normal_time_sec=3, max_swing_time_sec=2):
+    def __init__(self, max_normal_time_sec=10, max_swing_time_sec=6):
         self._mode = ChaseMode.NORMAL
         self._now_mode_start_time = time.time()
-        self._MAX_NORMAL_TIME_SEC = 5
-        self._MAX_SWING_TIME_SEC = 3
+        self._MAX_NORMAL_TIME_SEC = max_normal_time_sec
+        self._MAX_SWING_TIME_SEC = max_swing_time_sec
     
     def now(self):
         self.__update()

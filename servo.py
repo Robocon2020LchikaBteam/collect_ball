@@ -27,7 +27,7 @@ class Servo:
 
     """
 
-    def __init__(self, address, initial_pulse_length=400):
+    def __init__(self, address, initial_pulse_length=390):
         TRACE('Servo generated: address = ' + str(address))
         self._address = address
         self._pwm = Adafruit_PCA9685.PCA9685(address=address)
@@ -51,7 +51,7 @@ class Servo:
         self._is_lifting = True
     
     def down(self):
-        self.write(400, 3, 0.1)
+        self.write(390, 3, 0.1)
         self._is_lifting = False
     
     def is_lifting(self):

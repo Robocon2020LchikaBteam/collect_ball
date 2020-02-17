@@ -12,7 +12,6 @@ collect_ball_team
    imageProcessingUnitTest
    imu
    ipMain
-   madgwick_py
    main
    miniMotorDriver
    motorContl
@@ -20,4 +19,5 @@ collect_ball_team
    servoUnitTest
    shot
    socketServer
+   sound
    stop

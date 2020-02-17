@@ -145,7 +145,7 @@
 
 <span class="kn">import</span> <span class="nn">FaBo9Axis_MPU9250</span>
 <span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">from</span> <span class="nn">debug</span> <span class="k">import</span> <span class="n">DEBUG</span><span class="p">,</span> <span class="n">TRACE</span>
+<span class="kn">from</span> <span class="nn">debug</span> <span class="k">import</span> <span class="n">DEBUG</span><span class="p">,</span> <span class="n">TRACE</span><span class="p">,</span> <span class="n">INFO</span>
 
 
 <div class="viewcode-block" id="Imu"><a class="viewcode-back" href="../imu.html#imu.Imu">[docs]</a><span class="k">class</span> <span class="nc">Imu</span><span class="p">:</span>
@@ -207,6 +207,7 @@
             <span class="c1"># リスタート準備中フラグが立っていたら、他のモジュールが待っていてくれているので、補正値の調整をする</span>
             <span class="c1"># 補正が終わったらフラグをクリアして、他のモジュールに調整完了を知らせる</span>
             <span class="k">if</span> <span class="n">shmem</span><span class="o">.</span><span class="n">preparingRestart</span><span class="p">:</span>
+                <span class="n">INFO</span><span class="p">(</span><span class="s1">&#39;calibrate IMU to prepare restart&#39;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">calibrate</span><span class="p">()</span>
                 <span class="n">shmem</span><span class="o">.</span><span class="n">preparingRestart</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="n">gyro</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mpu9250</span><span class="o">.</span><span class="n">readGyro</span><span class="p">()</span>

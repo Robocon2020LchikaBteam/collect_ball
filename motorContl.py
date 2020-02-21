@@ -48,10 +48,10 @@ class MotorController:
     # ボール保持判定用距離[cm]
     DISTANCE_HAVE_BALL = 15
     # スタック判定用距離[cm]
-    DISTANCE_STACK = 6
+    DISTANCE_STUCK = 6
     # 壁スタック判定用時間[s]
     # この時間以上継続して壁が検出されていたら壁にハマっていると判断して何らかの対処をする
-    TIME_WALL_STACK = 3
+    TIME_WALL_STUCK = 3
 
     # 移動アルゴリズム1, 2で使用
     # ボール追跡時の基準スピード
@@ -242,7 +242,7 @@ class MotorController:
             return False
         else:
             if self._is_near_wall:
-                if time.time() - self._near_wall_start_time > MotorController.TIME_WALL_STACK:
+                if time.time() - self._near_wall_start_time > MotorController.TIME_WALL_STUCK:
                     INFO('### going into corner now')
                     return True
                 return False
@@ -328,7 +328,7 @@ class MotorController:
                 self.escape_from_corner(shmem)
             motorPowers = self.motorControlPostProcessor.run(motorPowers, shmem.bodyAngle / 10)
             # ボール保持中じゃないのに前方近くに何かあったら後退して回避する
-            if self.servo.is_lifting() and self.distanceSensor.read() < MotorController.DISTANCE_STACK:
+            if self.servo.is_lifting() and self.distanceSensor.read() < MotorController.DISTANCE_STUCK:
                 INFO('### detect something barrier')
                 motorPowers = (-MotorController.SPEED_BACK, -MotorController.SPEED_BACK)
             # モータ値を正常値にまるめる

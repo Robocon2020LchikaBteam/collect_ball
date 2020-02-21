@@ -30,6 +30,8 @@ class ImageProcessing:
     YELLOW_HSV_RANGE_MAX = [30, 255, 255]
     GREEN_HSV_RANGE_MIN = [60, 50, 80]
     GREEN_HSV_RANGE_MAX = [100, 255, 255]
+    BLACK_HSV_RANGE_MIN = [0, 0, 0]
+    BLACK_HSV_RANGE_MAX = [179, 255, 50]
 
     CAMERA_CENTER_CX = 240
     CAMERA_CENTER_CY = 240
@@ -38,6 +40,7 @@ class ImageProcessing:
     IGNORE_AREA_SIZE_BALL = 1000
     IGNORE_AREA_SIZE_YELLOW = 1000
     IGNORE_AREA_SIZE_GREEN = 1000
+    IGNORE_AREA_SIZE_WALL = 90000
 
     # @brief コンスタラクタ
     # @detail 初期化処理を行う
@@ -73,13 +76,17 @@ class ImageProcessing:
             hsv_range_min = self.GREEN_HSV_RANGE_MIN
             hsv_range_max = self.GREEN_HSV_RANGE_MAX
             mask = cv2.inRange(hsv_img, np.array(hsv_range_min), np.array(hsv_range_max))
+        elif color_name == 'BLACK':
+            hsv_range_min = self.BLACK_HSV_RANGE_MIN
+            hsv_range_max = self.BLACK_HSV_RANGE_MAX
+            mask = cv2.inRange(hsv_img, np.array(hsv_range_min), np.array(hsv_range_max))
             
         if self.DEBUG_IMSHOW == self.ENABLE:
             cv2.imshow('Mask' + color_name, cv2.flip(mask, -1))
 
         _, contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-        if color_name == 'RED' or color_name == 'BLUE' or color_name == 'YELLOW':
+        if color_name == 'RED' or color_name == 'BLUE' or color_name == 'YELLOW' or color_name == 'BLACK':
             convex_hull_list = []
             for contour in contours:
                 approx = cv2.convexHull(contour)
@@ -169,10 +176,16 @@ class ImageProcessing:
         if green_cx > -1:
             self.draw_marker(frame, green_cx, green_cy, (30, 255, 30))
         
+        # 黒色領域の検知
+        black_cx, black_cy, black_area_size, black_convex = self.colorDetect2(hsv_img, 'BLACK')
+        if black_cx > -1:
+            self.draw_marker(frame, black_cx, black_cy, (0, 0, 0))
+        
         INFO('RedSize :' + str(red_area_size).rjust(8))
         INFO('YellowSize :' + str(yellow_area_size).rjust(8))
         INFO('BlueSize :' + str(blue_area_size).rjust(8))
         INFO('GreenSize :' + str(green_area_size).rjust(8))
+        INFO('BlackSize :' + str(black_area_size).rjust(8))
 
         # 認識できた部分の面積が小さい場合は結果を無視し、distanceに不正な値を入れる
         if red_area_size > blue_area_size and red_area_size > self.IGNORE_AREA_SIZE_BALL:
@@ -195,8 +208,14 @@ class ImageProcessing:
         else:
             station_angle = 0
             station_distance = -1
+        if black_area_size > self.IGNORE_AREA_SIZE_WALL:
+            wall_x = black_cx - self.CAMERA_CENTER_CX
+            wall_size = black_area_size
+        else:
+            wall_x = 0
+            wall_size = -1
 
-        return ball_angle, ball_distance, station_angle, station_distance
+        return ball_angle, ball_distance, station_angle, station_distance, wall_x, wall_size
 
     # @brief 画像処理のmain処理
     # @param shmem 共有メモリ
@@ -212,10 +231,11 @@ class ImageProcessing:
                     # 画像を取得し、stream.arrayにRGBの順で映像データを格納
                     camera.capture(stream, 'bgr', use_video_port=True)
 
-                    ball_angle, ball_distance, station_angle, station_distance = self.imageProcessingFrame(stream.array, shmem)
+                    ball_angle, ball_distance, station_angle, station_distance, wall_x, wall_size = self.imageProcessingFrame(stream.array, shmem)
 
                     DEBUG('ball: angle =' + str(ball_angle).rjust(5) + ', distance = ' + str(ball_distance).rjust(5))
                     DEBUG('station: angle =' + str(station_angle).rjust(5) + ', distance = ' + str(station_distance).rjust(5))
+                    DEBUG('wall: x =' + str(wall_x).rjust(5) + ', size = ' + str(wall_size).rjust(5))
                     
                     # 結果表示
                     # 画角の前後左右と画像表示の上下左右を揃えるために画像を転置する。
@@ -225,13 +245,16 @@ class ImageProcessing:
                         cv2.moveWindow('MaskRED', 482, 30)
                         cv2.moveWindow('MaskYELLOW', 964, 30)
                         cv2.moveWindow('MaskGREEN', 1446, 30)
+                        cv2.moveWindow('MaskBLACK', 0, 530)
               
                     # 共有メモリに書き込む
                     shmem.ballAngle = int(ball_angle * 90 / 240)
                     shmem.ballDis = int(ball_distance)
                     shmem.stationAngle = int(station_angle * 90 / 240)
                     shmem.stationDis = int(station_distance)
-
+                    shmem.wallX = int(wall_x)
+                    shmem.wallSize = int(wall_size)
+                    
                     # "q"でウィンドウを閉じる
                     if cv2.waitKey(1) & 0xFF == ord("q"):
                         break

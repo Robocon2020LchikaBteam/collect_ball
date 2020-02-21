@@ -49,10 +49,13 @@ class MotorController:
     DISTANCE_HAVE_BALL = 15
     # スタック判定用距離[cm]
     DISTANCE_STACK = 6
+    # 壁スタック判定用時間[s]
+    # この時間以上継続して壁が検出されていたら壁にハマっていると判断して何らかの対処をする
+    TIME_WALL_STACK = 3
 
     # 移動アルゴリズム1, 2で使用
     # ボール追跡時の基準スピード
-    SPEED_CHASE = 60
+    SPEED_CHASE = 45
     # ボール追跡時の比例項の係数
     K_CHASE_ANGLE = 0.6  # SPEED_CHASE / 180にするとよい？
     # ステーション指示に従う際の基準スピード
@@ -84,6 +87,9 @@ class MotorController:
         self.chaseBallMode = ChaseMode()
         # 動作状態初期化
         self.motion_status = MotionStateE.CHASE_BALL
+        # 壁付近走行中かどうか保持用変数初期化
+        self._is_near_wall = False
+        self._near_wall_start_time = time.time()
 
     # 数値の絶対値を100に丸める
     def roundOffWithin100(self, num):
@@ -229,14 +235,46 @@ class MotorController:
             self.left_motor.drive(MotorController.SPEED_TURN + MotorController.K_TURN_ANGLE * angle)
             self.right_motor.drive(-MotorController.SPEED_TURN - MotorController.K_TURN_ANGLE * angle)
             time.sleep(0.1)
-        
+    
+    def is_going_into_corner(self, wall_size):
+        if wall_size == -1:
+            self._is_near_wall = False
+            return False
+        else:
+            if self._is_near_wall:
+                if time.time() - self._near_wall_start_time > MotorController.TIME_WALL_STACK:
+                    INFO('### going into corner now')
+                    return True
+                return False
+            else:
+                DEBUG('### detect near wall start')
+                self._near_wall_start_time = time.time()
+                self._is_near_wall = True
+        return False
+    
+    def escape_from_corner(self, shmem):
+        INFO('### escape from corner')
+        self.left_motor.drive(-MotorController.SPEED_BACK)
+        self.right_motor.drive(-MotorController.SPEED_BACK)
+        time.sleep(2)
+        if shmem.wallX > 0:
+            self.left_motor.drive(-100)
+            self.right_motor.drive(100)
+        else:
+            self.left_motor.drive(100)
+            self.right_motor.drive(-100)
+        time.sleep(1)
+        self.left_motor.drive(MotorController.SPEED_CHASE)
+        self.right_motor.drive(MotorController.SPEED_CHASE)
+        time.sleep(3)
+    
     # モータの値を計算しドライバへ送る
     def calcAndSendMotorPowers(self, shmem):
         self.chaseBallMode.set_mode(ChaseMode.NORMAL)
         while 1:
             if self.motion_status == MotionStateE.CHASE_BALL:
                 # ボール捕獲に移る
-                if 100 < shmem.ballDis < 160:
+                if 100 < shmem.ballDis < 160 and -20 < shmem.ballAngle < 20:
                     INFO('capture ball')
                     self.left_motor.drive(0)
                     self.right_motor.drive(0)
@@ -285,6 +323,9 @@ class MotorController:
             motorPowers = self.calcMotorPowers(shmem, self.motion_status)
             # モーター値後処理(現在は首振り検知処理のみ)
             # motorPowers = self.motorControlPostProcessor.escapeSwing(motorPowers)
+            # ステーションに戻るとき隅っこにハマる場合があるので、その時は中央に戻ることを試みる
+            if self.motion_status == MotionStateE.GO_TO_STATION and self.is_going_into_corner(shmem.wallSize):
+                self.escape_from_corner(shmem)
             motorPowers = self.motorControlPostProcessor.run(motorPowers, shmem.bodyAngle / 10)
             # ボール保持中じゃないのに前方近くに何かあったら後退して回避する
             if self.servo.is_lifting() and self.distanceSensor.read() < MotorController.DISTANCE_STACK:

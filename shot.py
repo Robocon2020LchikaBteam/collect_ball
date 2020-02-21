@@ -35,4 +35,4 @@ def save_frame_camera_key(device_num, dir_path, basename, ext='jpg', delay=1, wi
 
 
 if __name__ == '__main__':
-    save_frame_camera_key(0, 'data/temp', 'camera_capture')
+    save_frame_camera_key(0, 'data/temp', 'camera_capture_wall')

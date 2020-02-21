@@ -28,17 +28,19 @@ if __name__ == '__main__':
 
     imageProcessing = ImageProcessing()
 
-    file_path = 'pic/picture_0_10.jpg'
+    file_path = 'data/temp/camera_capture_wall_6.jpg'
 
     TRACE(file_path)
     stream = cv2.imread(file_path)
 
-    red_ball_angle, red_ball_distance = imageProcessing.imageProcessingFrame(stream, shmem)
+    ball_angle, ball_distance, station_angle, station_distance, wall_x, wall_size = imageProcessing.imageProcessingFrame(stream, shmem)
    
-    TRACE(red_ball_angle, red_ball_distance)
-    cv2.imshow('Frame', stream)
+    cv2.imshow('Frame', cv2.flip(stream, -1))
     cv2.moveWindow('Frame', 0, 30)
-    cv2.moveWindow('MaskRed', 482, 30)
+    cv2.moveWindow('MaskRED', 482, 30)
+    cv2.moveWindow('MaskYELLOW', 964, 30)
+    cv2.moveWindow('MaskGREEN', 1446, 30)
+    cv2.moveWindow('MaskBLACK', 0, 530)
     cv2.waitKey(0)
 
     cv2.destroyAllWindows()

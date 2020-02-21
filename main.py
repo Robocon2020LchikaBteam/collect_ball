@@ -22,7 +22,8 @@ class Point(Structure):
     _fields_ = [('ballAngle', c_int), ('ballDis', c_int),
                 ('stationAngle', c_int), ('stationDis', c_int),
                 ('bodyAngle', c_int), ('preparingRestart', c_bool),
-                ('soundPhase', c_int)]
+                ('soundPhase', c_int),
+                ('wallX', c_int), ('wallSize', c_int)]
 
 
 def info(title):

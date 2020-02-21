@@ -17,7 +17,7 @@ class ImageProcessing:
     # 画像出力の有効無効
     ENABLE = 1
     DISABLE = 0
-    DEBUG_IMSHOW = ENABLE
+    DEBUG_IMSHOW = DISABLE
 
     # マスクパラメータはあんまり厳しくしすぎると、本番で認識しないという事態になりそうで怖い
     RED_HSV_RANGE_MIN_1 = [0, 130, 80]

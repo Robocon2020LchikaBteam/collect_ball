@@ -48,10 +48,10 @@ class MotorController:
     # ボール保持判定用距離[cm]
     DISTANCE_HAVE_BALL = 15
     # スタック判定用距離[cm]
-    DISTANCE_STACK = 6
+    DISTANCE_STUCK = 6
     # 壁スタック判定用時間[s]
     # この時間以上継続して壁が検出されていたら壁にハマっていると判断して何らかの対処をする
-    TIME_WALL_STACK = 3
+    TIME_WALL_STUCK = 3
 
     # 移動アルゴリズム1, 2で使用
     # ボール追跡時の基準スピード
@@ -242,7 +242,7 @@ class MotorController:
             return False
         else:
             if self._is_near_wall:
-                if time.time() - self._near_wall_start_time > MotorController.TIME_WALL_STACK:
+                if time.time() - self._near_wall_start_time > MotorController.TIME_WALL_STUCK:
                     INFO('### going into corner now')
                     return True
                 return False
@@ -253,6 +253,7 @@ class MotorController:
         return False
     
     def escape_from_corner(self, shmem):
+        shmem.soundPhase = SoundPhaseE.DETECT_PRESS_WALL
         INFO('### escape from corner')
         self.left_motor.drive(-MotorController.SPEED_BACK)
         self.right_motor.drive(-MotorController.SPEED_BACK)
@@ -292,6 +293,7 @@ class MotorController:
                     self.servo.up()
                     # ステーションが見えている場合はステーションにボールを渡せたと判断して再スタートする
                     if shmem.stationDis != -1:
+                        shmem.soundPhase = SoundPhaseE.DONE
                         INFO('lost ball -> in station')
                         self.chaseBallMode.set_mode(ChaseMode.NORMAL)
                         self.motion_status = MotionStateE.PREPARE_RESTART
@@ -303,6 +305,7 @@ class MotorController:
                     self.right_motor.drive(0)
                     self.servo.up()
                     # ステーションに向かっている間に追跡モードがどうなっているか分からないので、通常にリセットしておく
+                    shmem.soundPhase = SoundPhaseE.DONE
                     self.chaseBallMode.set_mode(ChaseMode.NORMAL)
                     self.motion_status = MotionStateE.PREPARE_RESTART
             elif self.motion_status == MotionStateE.PREPARE_RESTART:
@@ -328,7 +331,7 @@ class MotorController:
                 self.escape_from_corner(shmem)
             motorPowers = self.motorControlPostProcessor.run(motorPowers, shmem.bodyAngle / 10)
             # ボール保持中じゃないのに前方近くに何かあったら後退して回避する
-            if self.servo.is_lifting() and self.distanceSensor.read() < MotorController.DISTANCE_STACK:
+            if self.servo.is_lifting() and self.distanceSensor.read() < MotorController.DISTANCE_STUCK:
                 INFO('### detect something barrier')
                 motorPowers = (-MotorController.SPEED_BACK, -MotorController.SPEED_BACK)
             # モータ値を正常値にまるめる

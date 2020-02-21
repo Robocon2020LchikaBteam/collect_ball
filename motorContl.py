@@ -48,7 +48,7 @@ class MotorController:
     # ボール保持判定用距離[cm]
     DISTANCE_HAVE_BALL = 15
     # スタック判定用距離[cm]
-    DISTANCE_STUCK = 6
+    DISTANCE_STUCK = 8
     # 壁スタック判定用時間[s]
     # この時間以上継続して壁が検出されていたら壁にハマっていると判断して何らかの対処をする
     TIME_WALL_STUCK = 3

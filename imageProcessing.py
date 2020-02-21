@@ -31,7 +31,7 @@ class ImageProcessing:
     GREEN_HSV_RANGE_MIN = [60, 50, 80]
     GREEN_HSV_RANGE_MAX = [100, 255, 255]
     BLACK_HSV_RANGE_MIN = [0, 0, 0]
-    BLACK_HSV_RANGE_MAX = [179, 255, 50]
+    BLACK_HSV_RANGE_MAX = [179, 255, 40]
 
     CAMERA_CENTER_CX = 240
     CAMERA_CENTER_CY = 240
@@ -86,7 +86,7 @@ class ImageProcessing:
 
         _, contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-        if color_name == 'RED' or color_name == 'BLUE' or color_name == 'YELLOW' or color_name == 'BLACK':
+        if color_name == 'RED' or color_name == 'BLUE' or color_name == 'BLACK':
             convex_hull_list = []
             for contour in contours:
                 approx = cv2.convexHull(contour)
@@ -106,7 +106,7 @@ class ImageProcessing:
                 return -1, -1, 0.0, []
             else:
                 return -1, -1, 0.0, []
-        elif color_name == 'GREEN':
+        elif color_name == 'YELLOW' or color_name == 'GREEN':
             convex_hull_list = []
             for contour in contours:
                 approx = cv2.approxPolyDP(contour, 0.01 * cv2.arcLength(contour, True), True)
@@ -172,9 +172,9 @@ class ImageProcessing:
             self.draw_marker(frame, blue_cx, blue_cy, (30, 30, 255))
         
         # 緑色領域の検知
-        green_cx, green_cy, green_area_size, green_convex = self.colorDetect2(hsv_img, 'GREEN')
-        if green_cx > -1:
-            self.draw_marker(frame, green_cx, green_cy, (30, 255, 30))
+        #green_cx, green_cy, green_area_size, green_convex = self.colorDetect2(hsv_img, 'GREEN')
+        #if green_cx > -1:
+        #    self.draw_marker(frame, green_cx, green_cy, (30, 255, 30))
         
         # 黒色領域の検知
         black_cx, black_cy, black_area_size, black_convex = self.colorDetect2(hsv_img, 'BLACK')
@@ -184,7 +184,7 @@ class ImageProcessing:
         INFO('RedSize :' + str(red_area_size).rjust(8))
         INFO('YellowSize :' + str(yellow_area_size).rjust(8))
         INFO('BlueSize :' + str(blue_area_size).rjust(8))
-        INFO('GreenSize :' + str(green_area_size).rjust(8))
+        #INFO('GreenSize :' + str(green_area_size).rjust(8))
         INFO('BlackSize :' + str(black_area_size).rjust(8))
 
         # 認識できた部分の面積が小さい場合は結果を無視し、distanceに不正な値を入れる
@@ -196,15 +196,17 @@ class ImageProcessing:
             DEBUG('use BLUE area')
             shmem.soundPhase = SoundPhaseE.DETECT_BLUE_BALL
             ball_angle, ball_distance = self.calcBallDirection(blue_cx, blue_cy)
-        elif yellow_area_size > self.IGNORE_AREA_SIZE_BALL:
-            DEBUG('use YELLOW area')
-            shmem.soundPhase = SoundPhaseE.DETECT_YELLOW_BALL
-            ball_angle, ball_distance = self.calcBallDirection(yellow_cx, yellow_cy)
+        #elif yellow_area_size > self.IGNORE_AREA_SIZE_BALL:
+        #    DEBUG('use YELLOW area')
+        #    shmem.soundPhase = SoundPhaseE.DETECT_YELLOW_BALL
+        #    ball_angle, ball_distance = self.calcBallDirection(yellow_cx, yellow_cy)
         else:
             ball_angle = 0
             ball_distance = -1
-        if green_area_size > self.IGNORE_AREA_SIZE_GREEN:
-            station_angle, station_distance = self.calcBallDirection(green_cx, green_cy)
+        #if green_area_size > self.IGNORE_AREA_SIZE_GREEN:
+        #    station_angle, station_distance = self.calcBallDirection(green_cx, green_cy)
+        if yellow_area_size > self.IGNORE_AREA_SIZE_YELLOW:
+            station_angle, station_distance = self.calcBallDirection(yellow_cx, yellow_cy)
         else:
             station_angle = 0
             station_distance = -1
@@ -244,7 +246,8 @@ class ImageProcessing:
                         cv2.moveWindow('Frame', 0, 30)
                         cv2.moveWindow('MaskRED', 482, 30)
                         cv2.moveWindow('MaskYELLOW', 964, 30)
-                        cv2.moveWindow('MaskGREEN', 1446, 30)
+                        cv2.moveWindow('MaskBLUE', 1446, 30)
+                        #cv2.moveWindow('MaskGREEN', 1446, 30)
                         cv2.moveWindow('MaskBLACK', 0, 530)
               
                     # 共有メモリに書き込む

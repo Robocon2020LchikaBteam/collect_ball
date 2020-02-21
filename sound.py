@@ -15,6 +15,7 @@ class SoundPhaseE(IntEnum):
     PREPARE_RESTART = 5
     DETECT_PRESS_WALL = 6
     DETECT_YELLOW_BALL = 7
+    DONE = 8
 
 
 class Sound:
@@ -26,7 +27,8 @@ class Sound:
                            './sound/detect_station.mp3',
                            './sound/prepare_restart.mp3',
                            './sound/detect_pressing_wall.mp3',
-                           './sound/detect_yellow_ball.mp3']
+                           './sound/detect_yellow_ball.mp3',
+                           './sound/done.mp3']
         TRACE('Sound generated')
     
     def update_loop(self, shmem):

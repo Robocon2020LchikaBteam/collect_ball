@@ -253,6 +253,7 @@ class MotorController:
         return False
     
     def escape_from_corner(self, shmem):
+        shmem.soundPhase = SoundPhaseE.DETECT_PRESS_WALL
         INFO('### escape from corner')
         self.left_motor.drive(-MotorController.SPEED_BACK)
         self.right_motor.drive(-MotorController.SPEED_BACK)
@@ -292,6 +293,7 @@ class MotorController:
                     self.servo.up()
                     # ステーションが見えている場合はステーションにボールを渡せたと判断して再スタートする
                     if shmem.stationDis != -1:
+                        shmem.soundPhase = SoundPhaseE.DONE
                         INFO('lost ball -> in station')
                         self.chaseBallMode.set_mode(ChaseMode.NORMAL)
                         self.motion_status = MotionStateE.PREPARE_RESTART
@@ -303,6 +305,7 @@ class MotorController:
                     self.right_motor.drive(0)
                     self.servo.up()
                     # ステーションに向かっている間に追跡モードがどうなっているか分からないので、通常にリセットしておく
+                    shmem.soundPhase = SoundPhaseE.DONE
                     self.chaseBallMode.set_mode(ChaseMode.NORMAL)
                     self.motion_status = MotionStateE.PREPARE_RESTART
             elif self.motion_status == MotionStateE.PREPARE_RESTART:
